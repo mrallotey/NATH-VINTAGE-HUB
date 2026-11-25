@@ -39,6 +39,18 @@ async function init() {
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`);
   await pool.query('CREATE INDEX IF NOT EXISTS products_public_listing_idx ON products (is_published, is_available, category, created_at DESC)');
+  // One-time temporary admin provisioning. Remove these Render env vars after the account is created.
+  const tempAdminEmail = (process.env.TEMP_ADMIN_EMAIL || '').toLowerCase().trim();
+  const tempAdminPassword = process.env.TEMP_ADMIN_PASSWORD || '';
+  if (tempAdminEmail && tempAdminPassword) {
+    const { rows: existingTempAdmin } = await pool.query('SELECT id FROM admin_users WHERE email=$1', [tempAdminEmail]);
+    if (!existingTempAdmin.length) {
+      const tempHash = await bcrypt.hash(tempAdminPassword, 12);
+      await pool.query("INSERT INTO admin_users(email,password_hash,role) VALUES($1,$2,'admin')", [tempAdminEmail, tempHash]);
+      console.log('Temporary admin account provisioned.');
+    }
+  }
+
 }
 
 function auth(req, res, next) {

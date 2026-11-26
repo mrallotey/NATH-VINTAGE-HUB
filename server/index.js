@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import pg from 'pg';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { randomUUID } from 'node:crypto';
 
 const { Pool } = pg;
 const app = express();
@@ -14,6 +15,8 @@ const OWNER_EMAIL = (process.env.OWNER_EMAIL || '').toLowerCase().trim();
 const SETUP_TOKEN = process.env.OWNER_SETUP_TOKEN || '';
 const JWT_SECRET = process.env.JWT_SECRET || '';
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'https://nath-vintage-hub.onrender.com';
+const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\\/$/, '');
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 if (!process.env.DATABASE_URL || !OWNER_EMAIL || !SETUP_TOKEN || !JWT_SECRET) {
   console.error('Missing required DATABASE_URL, OWNER_EMAIL, OWNER_SETUP_TOKEN or JWT_SECRET environment variable.');
@@ -22,7 +25,7 @@ if (!process.env.DATABASE_URL || !OWNER_EMAIL || !SETUP_TOKEN || !JWT_SECRET) {
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: FRONTEND_ORIGIN.split(',').map(v => v.trim()), credentials: true }));
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '7mb' }));
 app.use('/api/auth', rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: 'draft-7', legacyHeaders: false }));
 
 async function init() {
@@ -115,6 +118,41 @@ app.post('/api/auth/login', async (req, res) => {
   } catch { res.status(500).json({ error: 'Sign-in is temporarily unavailable.' }); }
 });
 app.get('/api/admin/me', auth, (req, res) => res.json({ user: req.user }));
+
+app.post('/api/admin/upload', auth, async (req, res) => {
+  try {
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return res.status(503).json({ error: 'Image storage is not configured yet.' });
+    const { fileName, contentType, fileBase64 } = req.body || {};
+    const allowed = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+    if (!allowed.has(contentType)) return res.status(400).json({ error: 'Upload a JPG, PNG, WEBP or GIF image.' });
+    if (typeof fileBase64 !== 'string' || !fileBase64) return res.status(400).json({ error: 'Choose an image to upload.' });
+    const buffer = Buffer.from(fileBase64, 'base64');
+    if (!buffer.length || buffer.length > 5 * 1024 * 1024) return res.status(400).json({ error: 'Image must be smaller than 5 MB.' });
+    const ext = ({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' })[contentType];
+    const safeName = (typeof fileName === 'string' ? fileName.replace(/[^a-zA-Z0-9._-]/g, '-').slice(-80) : 'product');
+    const objectPath = `products/${Date.now()}-${randomUUID()}-${safeName.replace(/\\.[^.]+$/, '')}.${ext}`;
+    const upload = await fetch(`${SUPABASE_URL}/storage/v1/object/product-images/${objectPath}`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        'Content-Type': contentType,
+        'x-upsert': 'false'
+      },
+      body: buffer
+    });
+    if (!upload.ok) {
+      const detail = await upload.text();
+      console.error('Supabase image upload failed:', upload.status, detail.slice(0, 300));
+      return res.status(502).json({ error: 'Supabase could not store this image. Check the storage bucket and server key.' });
+    }
+    res.status(201).json({ image_url: `${SUPABASE_URL}/storage/v1/object/public/product-images/${objectPath}` });
+  } catch (err) {
+    console.error('Image upload error:', err.message);
+    res.status(500).json({ error: 'Could not upload the image.' });
+  }
+});
+
 app.get('/api/admin/products', auth, async (_req, res) => {
   const { rows } = await pool.query('SELECT * FROM products ORDER BY created_at DESC');
   res.json({ products: rows });

@@ -37,10 +37,11 @@ async function init() {
   await pool.query(`CREATE TABLE IF NOT EXISTS products (
     id BIGSERIAL PRIMARY KEY, name TEXT NOT NULL, category TEXT NOT NULL,
     description TEXT NOT NULL DEFAULT '', price NUMERIC(12,2),
-    image_url TEXT NOT NULL DEFAULT '', is_published BOOLEAN NOT NULL DEFAULT TRUE,
+    image_url TEXT NOT NULL DEFAULT '', image_urls JSONB NOT NULL DEFAULT '[]'::jsonb, is_published BOOLEAN NOT NULL DEFAULT TRUE,
     is_available BOOLEAN NOT NULL DEFAULT TRUE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`);
+  await pool.query("ALTER TABLE products ADD COLUMN IF NOT EXISTS image_urls JSONB NOT NULL DEFAULT '[]'::jsonb");
   await pool.query('CREATE INDEX IF NOT EXISTS products_public_listing_idx ON products (is_published, is_available, category, created_at DESC)');
   // One-time temporary admin provisioning. Remove these Render env vars after the account is created.
   const tempAdminEmail = (process.env.TEMP_ADMIN_EMAIL || '').toLowerCase().trim();
@@ -73,8 +74,11 @@ function productInput(body) {
   const price = body.price === '' || body.price == null ? null : Number(body.price);
   if (price !== null && (!Number.isFinite(price) || price < 0)) return { error: 'Enter a valid price.' };
   const imageUrl = clean(body.image_url);
+  const imageUrls = Array.isArray(body.image_urls) ? [...new Set(body.image_urls.map(clean).filter(Boolean))] : (imageUrl ? [imageUrl] : []);
   if (imageUrl && !/^https:\/\//i.test(imageUrl)) return { error: 'Product image must use a secure https:// URL.' };
-  return { values: [name, category, clean(body.description), price, imageUrl, body.is_published !== false, body.is_available !== false] };
+  if (imageUrls.some(url => !/^https:\/\//i.test(url))) return { error: 'All product images must use secure https:// URLs.' };
+  if (imageUrls.length > 12) return { error: 'A product can have up to 12 photos.' };
+  return { values: [name, category, clean(body.description), price, imageUrls[0] || imageUrl, JSON.stringify(imageUrls), body.is_published !== false, body.is_available !== false] };
 }
 
 app.get('/api/health', async (_req, res) => {
@@ -83,7 +87,7 @@ app.get('/api/health', async (_req, res) => {
 });
 app.get('/api/products', async (_req, res) => {
   try {
-    const { rows } = await pool.query(`SELECT id, name, category, description, price, image_url, is_available
+    const { rows } = await pool.query(`SELECT id, name, category, description, price, image_url, image_urls, is_available
       FROM products WHERE is_published = TRUE ORDER BY created_at DESC`);
     res.json({ products: rows });
   } catch { res.status(500).json({ error: 'Could not load products.' }); }
@@ -161,8 +165,8 @@ app.post('/api/admin/products', auth, async (req, res) => {
   const parsed = productInput(req.body);
   if (parsed.error) return res.status(400).json({ error: parsed.error });
   try {
-    const { rows } = await pool.query(`INSERT INTO products(name,category,description,price,image_url,is_published,is_available)
-      VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *`, parsed.values);
+    const { rows } = await pool.query(`INSERT INTO products(name,category,description,price,image_url,image_urls,is_published,is_available)
+      VALUES($1,$2,$3,$4,$5,$6::jsonb,$7,$8) RETURNING *`, parsed.values);
     res.status(201).json({ product: rows[0] });
   } catch { res.status(500).json({ error: 'Could not save product.' }); }
 });
@@ -170,8 +174,8 @@ app.put('/api/admin/products/:id', auth, async (req, res) => {
   const parsed = productInput(req.body);
   if (parsed.error) return res.status(400).json({ error: parsed.error });
   try {
-    const { rows } = await pool.query(`UPDATE products SET name=$1,category=$2,description=$3,price=$4,image_url=$5,
-      is_published=$6,is_available=$7,updated_at=NOW() WHERE id=$8 RETURNING *`, [...parsed.values, req.params.id]);
+    const { rows } = await pool.query(`UPDATE products SET name=$1,category=$2,description=$3,price=$4,image_url=$5,image_urls=$6::jsonb,
+      is_published=$7,is_available=$8,updated_at=NOW() WHERE id=$9 RETURNING *`, [...parsed.values, req.params.id]);
     if (!rows.length) return res.status(404).json({ error: 'Product not found.' });
     res.json({ product: rows[0] });
   } catch { res.status(500).json({ error: 'Could not update product.' }); }

@@ -46,3 +46,7 @@
 .site.daylight .hero-bgword{color:#17191408}
 @media(max-width:850px){.theme-toggle{padding:9px 10px;font-size:8px}}
 @media(max-width:620px){.nav{gap:7px}.theme-toggle{padding:9px 7px;font-size:7px;letter-spacing:.4px}.nav-owner-login{padding:9px 7px;font-size:7px}}
+
+
+/* Keep the moving streetwear culture ticker crisp white in dark mood. */
+.site.dark-mood .ticker{color:#fff}

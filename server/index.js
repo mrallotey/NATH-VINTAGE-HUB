@@ -9,6 +9,8 @@ import { randomUUID } from 'node:crypto';
 
 const { Pool } = pg;
 const app = express();
+// Render terminates TLS and forwards requests through its trusted proxy.
+app.set('trust proxy', 1);
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 const PORT = process.env.PORT || 10000;
 const OWNER_EMAIL = (process.env.OWNER_EMAIL || '').toLowerCase().trim();
@@ -86,11 +88,17 @@ app.get('/api/health', async (_req, res) => {
   catch { res.status(503).json({ ok: false, database: 'unavailable' }); }
 });
 app.get('/api/products', async (_req, res) => {
+  res.set('Cache-Control', 'no-store, max-age=0');
   try {
     const { rows } = await pool.query(`SELECT id, name, category, description, price, image_url, image_urls, is_available
-      FROM products WHERE is_published = TRUE ORDER BY created_at DESC`);
-    res.json({ products: rows });
-  } catch { res.status(500).json({ error: 'Could not load products.' }); }
+      FROM products
+      WHERE is_published = TRUE AND is_available = TRUE
+      ORDER BY created_at DESC`);
+    res.json({ products: rows, count: rows.length });
+  } catch (err) {
+    console.error('Public product catalogue query failed:', err.message);
+    res.status(500).json({ error: 'Could not load products.' });
+  }
 });
 app.get('/api/auth/setup-status', async (_req, res) => {
   const { rows } = await pool.query('SELECT EXISTS(SELECT 1 FROM admin_users) AS claimed');

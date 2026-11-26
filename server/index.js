@@ -15,7 +15,7 @@ const OWNER_EMAIL = (process.env.OWNER_EMAIL || '').toLowerCase().trim();
 const SETUP_TOKEN = process.env.OWNER_SETUP_TOKEN || '';
 const JWT_SECRET = process.env.JWT_SECRET || '';
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'https://nath-vintage-hub.onrender.com';
-const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\\/$/, '');
+const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 if (!process.env.DATABASE_URL || !OWNER_EMAIL || !SETUP_TOKEN || !JWT_SECRET) {

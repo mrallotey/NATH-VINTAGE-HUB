@@ -50,3 +50,10 @@
 
 /* Keep the moving streetwear culture ticker crisp white in dark mood. */
 .site.dark-mood .ticker{color:#fff}
+
+
+/* Ensure catalogue cards and product detail panels keep readable dark text on their light surfaces in both themes. */
+.site .live-product,
+.site .product-detail-panel{color:var(--ink)}
+.site .live-product p,
+.site .product-detail-info p{color:#68675f}

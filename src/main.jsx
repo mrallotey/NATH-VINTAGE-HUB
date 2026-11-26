@@ -10,7 +10,10 @@ const products=[
 {name:'Sneakers',tag:'STEP INTO YOUR STYLE',image:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1000&q=85'},
 {name:'Birkenstock & Slides',tag:'OFF-DUTY COMFORT',image:'https://images.unsplash.com/photo-1603487742131-4160ec999306?auto=format&fit=crop&w=1000&q=85'},
 {name:'Hoodies',tag:'LAYER UP',image:'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=1000&q=85'},
-{name:'Football Boots',tag:'BUILT FOR THE GAME',image:'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=1000&q=85'}];
+{name:'Football Boots',tag:'BUILT FOR THE GAME',image:'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=1000&q=85'},
+{name:'Leather Shoes',tag:'POLISHED EVERYDAY STYLE',image:'https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/Premium%20leather%20shoe.jfif'},
+{name:'Timberland Boots',tag:'BUILT TO STAND OUT',image:'https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/Timberland%20Gold.jfif'},
+{name:'Vintage Denim',tag:'CLASSIC DENIM. FRESH LOOK.',image:'https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/Vintage%20Jean%20Short.jfif'}];
 const API=import.meta.env.VITE_API_URL || 'https://nath-vintage-api.onrender.com';
 function App(){
 const [theme,setTheme]=React.useState(()=>localStorage.getItem('nvh-theme')||'dark'),[menu,setMenu]=React.useState(false),[selectedCategory,setSelectedCategory]=React.useState(''),[selectedProduct,setSelectedProduct]=React.useState(null),[galleryIndex,setGalleryIndex]=React.useState(0);

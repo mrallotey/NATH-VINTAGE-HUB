@@ -11,7 +11,7 @@ const { Pool } = pg;
 const app = express();
 // Render terminates TLS and forwards requests through its trusted proxy.
 app.set('trust proxy', 1);
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const PORT = process.env.PORT || 10000;
 const OWNER_EMAIL = (process.env.OWNER_EMAIL || '').toLowerCase().trim();
 const SETUP_TOKEN = process.env.OWNER_SETUP_TOKEN || '';
@@ -25,8 +25,8 @@ const safeSecretEqual = (left, right) => timingSafeEqual(
   createHash('sha256').update(String(right)).digest()
 );
 
-if (!process.env.DATABASE_URL || !OWNER_EMAIL || !SETUP_TOKEN || !JWT_SECRET) {
-  console.error('Missing required DATABASE_URL, OWNER_EMAIL, OWNER_SETUP_TOKEN or JWT_SECRET environment variable.');
+if (!process.env.DATABASE_URL || !OWNER_EMAIL || !JWT_SECRET) {
+  console.error('Missing required DATABASE_URL, OWNER_EMAIL or JWT_SECRET environment variable.');
   process.exit(1);
 }
 
@@ -146,7 +146,7 @@ app.post('/api/auth/login', async (req, res) => {
 });
 app.get('/api/admin/me', auth, (req, res) => res.json({ user: req.user }));
 
-app.post('/api/admin/upload', auth, async (req, res) => {
+app.post('/api/admin/upload', auth, rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: 'draft-8', legacyHeaders: false }), async (req, res) => {
   try {
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return res.status(503).json({ error: 'Image storage is not configured yet.' });
     const { fileName, contentType, fileBase64 } = req.body || {};

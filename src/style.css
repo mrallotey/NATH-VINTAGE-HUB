@@ -105,3 +105,13 @@
   }
   .site .category-catalogue .catalogue-product>img{height:155px}
 }
+
+
+/* Dedicated owner workspace: /owner is independent of the public storefront. */
+.site.owner-route{min-height:100vh;background:var(--paper);}
+.site.owner-route> :not(.admin-overlay){display:none!important;}
+.site.owner-route .admin-overlay{position:fixed;inset:0;z-index:1000;background:#101827;}
+.site.owner-route .admin-panel{width:min(760px,100%);max-height:min(92vh,900px);border:1px solid #c7a56a55;box-shadow:0 28px 90px #0008;}
+.site.owner-route .admin-panel-head>button{width:40px;height:40px;border:1px solid #aaa18e;background:transparent;color:var(--ink);font-size:26px;cursor:pointer;}
+.site.owner-route .admin-panel-head>button:hover{background:var(--ink);color:var(--cream);}
+@media(max-width:620px){.site.owner-route .admin-overlay{padding:0;}.site.owner-route .admin-panel{max-height:100dvh;}}

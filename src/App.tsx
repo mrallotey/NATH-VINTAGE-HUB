@@ -69,6 +69,11 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
   const [photoIndex, setPhotoIndex] = React.useState(0);
   const [mobileMenu, setMobileMenu] = React.useState(false);
+  const [selectedCollection, setSelectedCollection] = React.useState<string | null>(() => {
+    const match = window.location.hash.match(/^#category\/(.+)$/);
+    if (!match) return null;
+    try { return decodeURIComponent(match[1]); } catch { return null; }
+  });
 
   const loadProducts = React.useCallback(async () => {
     setLoading(true); setError('');
@@ -83,6 +88,19 @@ export default function App() {
     } finally { setLoading(false); }
   }, []);
   React.useEffect(() => { loadProducts(); }, [loadProducts]);
+  React.useEffect(() => {
+    const syncCategoryRoute = () => {
+      const match = window.location.hash.match(/^#category\/(.+)$/);
+      if (!match) { setSelectedCollection(null); return; }
+      try {
+        const name = decodeURIComponent(match[1]);
+        setSelectedCollection(name);
+        setActiveCategory(name);
+      } catch { setSelectedCollection(null); }
+    };
+    window.addEventListener('hashchange', syncCategoryRoute);
+    return () => window.removeEventListener('hashchange', syncCategoryRoute);
+  }, []);
 
   const categories = React.useMemo(() => {
     const live = [...new Set(products.filter(p => p.is_available !== false && p.is_available !== 'false').map(p => p.category).filter(Boolean))];
@@ -100,8 +118,18 @@ export default function App() {
 
   const openCollection = (name: string) => {
     setActiveCategory(name);
-    document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setSelectedCollection(name);
+    window.history.pushState(null, '', '#category/' + encodeURIComponent(name));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+  const closeCollection = () => {
+    window.history.replaceState(null, '', window.location.pathname + window.location.search + '#collections');
+    setSelectedCollection(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  const categoryProducts = selectedCollection ? products.filter(p =>
+    p.is_available !== false && p.is_available !== 'false' && normalize(p.category) === normalize(selectedCollection)
+  ) : [];
   const openProduct = (product: Product) => { setSelectedProduct(product); setPhotoIndex(0); };
   const productPhotos = selectedProduct ? photos(selectedProduct) : [];
 
@@ -118,6 +146,15 @@ export default function App() {
     </header>
 
     <main id="home">
+      {selectedCollection ? <section className="category-page">
+        <div className="category-page-top"><button className="category-back" onClick={closeCollection}><ChevronLeft size={17}/> BACK TO COLLECTIONS</button><span>NVH / COLLECTIONS / {selectedCollection.toUpperCase()}</span></div>
+        <div className="category-page-heading"><div><span className="eyebrow"><i/> THE NVH SELECTION</span><h1>{selectedCollection.toUpperCase()} <em>EDIT.</em></h1><p>Explore the pieces in this collection. Select an item to view its details, photos and price.</p></div><div className="category-page-count"><strong>{String(categoryProducts.length).padStart(2,'0')}</strong><small>AVAILABLE<br/>ITEMS</small></div></div>
+        {loading && <div className="category-empty">LOADING THIS COLLECTION<span>...</span></div>}
+        {!loading && error && <div className="category-empty"><p>We couldn't load this collection right now.</p><small>{error}</small><button className="button-red" onClick={loadProducts}>TRY AGAIN</button></div>}
+        {!loading && !error && categoryProducts.length > 0 && <div className="live-product-grid category-product-grid">{categoryProducts.map((p, i) => <button className="live-product-card" key={p.id} onClick={() => openProduct(p)}><div className="live-product-photo">{photos(p)[0] ? <img src={photos(p)[0]} alt={p.name} loading="lazy"/> : <div className="no-photo">NVH</div>}<span className="live-product-index">{String(i + 1).padStart(2,'0')}</span><span className="live-product-open"><ArrowUpRight/></span></div><div className="live-product-info"><small>{p.category}</small><strong>{p.name}</strong><div><b>{money(p.price) || 'PRICE ON ENQUIRY'}</b><span>VIEW DETAILS ↗</span></div></div></button>)}</div>}
+        {!loading && !error && categoryProducts.length === 0 && <div className="category-empty">NO ITEMS IN THIS COLLECTION JUST YET.<small>Check back soon or contact us for assistance.</small><a className="button-red" href={wa('Hello Nath Vintage Hub, please let me know when ' + selectedCollection + ' items are available.')} target="_blank" rel="noreferrer">ENQUIRE ON WHATSAPP <ArrowUpRight size={16}/></a></div>}
+        <div className="category-page-bottom"><span>THE CULTURE. THE CLASSICS. THE FIT.</span><button onClick={closeCollection}>EXPLORE OTHER COLLECTIONS <ArrowUpRight size={15}/></button></div>
+      </section> : <>
       <section className="hero-onepage">
         <div className="hero-backdrop-word">VINTAGE</div>
         <div className="hero-copy">
@@ -152,6 +189,7 @@ export default function App() {
       <section className="story-onepage" id="story"><div className="story-image"><img src="https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/nath%20flyer.jfif" alt="Nath Vintage Hub edit" loading="lazy"/></div><div className="story-copy"><span className="eyebrow"><i/> THE NVH STANDARD</span><h2>GOOD FINDS.<br/><em>GOOD FEELING.</em></h2><p>We bring together jerseys, footwear and sportswear for people who know what they like. Whether you are chasing a classic shirt or refreshing your everyday rotation, we are here to help you find it.</p><ul><li>QUALITY-FOCUSED SELECTION</li><li>CUSTOMISATION AVAILABLE</li><li>WORLDWIDE DELIVERY</li><li>PERSONAL SERVICE, EVERY TIME</li></ul><a href={wa('Hello Nath Vintage Hub, I would like to ask about your collections.')} target="_blank" rel="noreferrer" className="story-link">GET IN TOUCH <ArrowUpRight/></a></div></section>
 
       <section className="contact-onepage" id="contact"><div className="contact-copy"><span className="eyebrow"><i/> READY WHEN YOU ARE</span><h2>LET'S GET YOU<br/><em>THE RIGHT FIT.</em></h2><p>Found something you love? Have a question? Reach out and let's make it happen.</p><a className="button-red" href={wa()} target="_blank" rel="noreferrer"><MessageCircle size={18}/> CHAT ON WHATSAPP <ArrowUpRight size={17}/></a></div><div className="contact-details"><div><small>CALL US</small><a href="tel:+233591986831"><Phone/>{PHONE}</a></div><div><small>WHATSAPP</small><a href={wa()} target="_blank" rel="noreferrer"><MessageCircle/>+233 206 394 909</a></div><div><small>EMAIL US</small><a href={'mailto:' + EMAIL}>{EMAIL}</a></div><div><small>DELIVERY</small><span><Truck/> WORLDWIDE DELIVERY</span></div></div></section>
+      </>}
     </main>
     <footer className="site-footer"><a className="footer-brand" href="#home">NVH <span>NATH VINTAGE HUB</span></a><span>BUY QUALITY. WEAR THE DIFFERENCE.</span><span>© {new Date().getFullYear()} NATH VINTAGE HUB</span><a href="/privacy-policy.html">PRIVACY</a><a href="/terms-and-conditions.html">TERMS</a><a href="#home">BACK TO TOP ↑</a></footer>
     <a className="floating-whatsapp" href={wa()} target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp"><MessageCircle/></a>

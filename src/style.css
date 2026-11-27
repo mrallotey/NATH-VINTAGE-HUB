@@ -606,3 +606,59 @@ body{margin:0;background:#fff!important;color:var(--nvh-ink);font-family:'PP Neu
 @media(prefers-reduced-motion:reduce){
  .site.owner-route .admin-form .button,.site.owner-route .admin-panel-head>button{transition:none}
 }
+
+
+/* Keep the signed-in product workspace fully reachable and scrollable.
+   The sign-in view retains its existing fixed-height composition. */
+.site.owner-route .admin-panel.admin-panel-authenticated{
+  height:min(900px,92vh);
+  min-height:0;
+  max-height:92vh;
+  overflow-y:auto;
+  overflow-x:hidden;
+  grid-template-rows:repeat(4,max-content);
+  grid-auto-rows:max-content;
+  align-content:start;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+.site.owner-route .admin-panel.admin-panel-authenticated::before{
+  grid-row:1 / span 4;
+  min-height:0;
+  height:100%;
+  align-self:stretch;
+}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-panel-head{grid-row:1}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-toolbar{grid-row:2}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-form{grid-row:3}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-list{grid-row:4}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-form,
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-list{
+  min-width:0;
+}
+.site.owner-route .admin-panel.admin-panel-authenticated :is(input,select,textarea,button){
+  pointer-events:auto;
+}
+@media(max-width:760px){
+  .site.owner-route .admin-panel.admin-panel-authenticated{
+    display:flex;
+    flex-direction:column;
+    height:auto;
+    min-height:100dvh;
+    max-height:none;
+    overflow:visible;
+    scrollbar-gutter:auto;
+  }
+  .site.owner-route .admin-panel.admin-panel-authenticated::before{
+    grid-row:auto;
+    min-height:230px;
+    height:auto;
+  }
+  .site.owner-route .admin-panel.admin-panel-authenticated .admin-panel-head,
+  .site.owner-route .admin-panel.admin-panel-authenticated .admin-toolbar,
+  .site.owner-route .admin-panel.admin-panel-authenticated .admin-product-form,
+  .site.owner-route .admin-panel.admin-panel-authenticated .admin-product-list{
+    grid-row:auto;
+    flex:none;
+  }
+}

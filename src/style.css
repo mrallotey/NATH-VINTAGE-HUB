@@ -662,3 +662,269 @@ body{margin:0;background:#fff!important;color:var(--nvh-ink);font-family:'PP Neu
     flex:none;
   }
 }
+
+
+/* OWNER PORTAL — aligned with the cinematic black, red and ivory storefront.
+   Presentation-only overrides: authentication, catalogue and upload behavior remain unchanged. */
+.site.owner-route{
+  --owner-ink:#100b0c;
+  --owner-paper:#f5f1ed;
+  --owner-red:#e11d2e;
+  --owner-muted:#766d68;
+  min-height:100vh;
+  background:#080808;
+  color:var(--owner-ink);
+  font-family:"DM Sans",Arial,sans-serif;
+}
+.site.owner-route .admin-overlay{
+  position:fixed;inset:0;z-index:1000;
+  display:grid;place-items:center;
+  padding:clamp(16px,3vw,44px);
+  overflow:auto;
+  background:
+    radial-gradient(ellipse at 12% 8%,#e11d2e38,transparent 34%),
+    radial-gradient(ellipse at 92% 88%,#5a111b55,transparent 38%),
+    #080808;
+}
+.site.owner-route .admin-panel{
+  display:grid;
+  grid-template-columns:minmax(300px,1fr) minmax(390px,1fr);
+  grid-template-rows:max-content 1fr;
+  position:relative;
+  width:min(1120px,100%);
+  min-height:620px;
+  max-height:min(920px,94vh);
+  overflow:auto;
+  padding:0;
+  border:1px solid #ffffff1a;
+  border-radius:2px;
+  background:var(--owner-paper);
+  box-shadow:0 38px 120px #000c,0 0 0 1px #e11d2e18;
+}
+.site.owner-route .admin-panel::before{
+  content:"NATH VINTAGE HUB\\A\\A BUY QUALITY.\\A WEAR THE\\A DIFFERENCE.\\A\\A PRIVATE OWNER WORKSPACE";
+  white-space:pre-wrap;
+  grid-column:1;grid-row:1 / span 8;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  min-height:620px;
+  padding:clamp(28px,4.8vw,64px);
+  color:#fff;
+  background:
+    linear-gradient(180deg,#08080812 0%,#08080825 32%,#080808ed 100%),
+    linear-gradient(135deg,#e11d2e20,#08080855),
+    url("https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/nath%20flyer.jfif") center 35%/cover,
+    #111;
+  border-right:1px solid #e11d2e66;
+  font:700 clamp(12px,1.25vw,16px)/1.8 "DM Sans",sans-serif;
+  letter-spacing:.13em;
+}
+.site.owner-route .admin-panel::after{
+  content:"NVH";
+  position:absolute;left:clamp(28px,4.8vw,64px);top:clamp(28px,4.8vw,64px);
+  color:#fff;font:900 clamp(76px,10vw,132px)/.78 "Barlow Condensed",sans-serif;
+  letter-spacing:-.085em;
+  text-shadow:4px 4px 0 var(--owner-red),0 14px 36px #000b;
+  pointer-events:none;
+}
+.site.owner-route .admin-panel-head,
+.site.owner-route .admin-form,
+.site.owner-route .admin-toolbar,
+.site.owner-route .admin-product-form,
+.site.owner-route .admin-product-list{
+  grid-column:2;min-width:0;margin:0;
+  padding-left:clamp(24px,4vw,54px);
+  padding-right:clamp(24px,4vw,54px);
+  background:var(--owner-paper);
+}
+.site.owner-route .admin-panel-head{
+  grid-row:1;align-self:end;
+  display:flex;align-items:flex-start;justify-content:space-between;
+  padding-top:clamp(34px,5vw,62px);
+  padding-bottom:24px;
+  border:0;border-bottom:1px solid #d8d0ca;
+}
+.site.owner-route .admin-panel-head h2{
+  margin:15px 0 0;
+  color:var(--owner-ink);
+  font:900 clamp(38px,4.8vw,56px)/.9 "Barlow Condensed",sans-serif;
+  letter-spacing:-.025em;text-transform:uppercase;
+}
+.site.owner-route .admin-brand-lockup{display:flex;align-items:center;gap:11px}
+.site.owner-route .admin-brand-mark{
+  display:inline-grid;place-items:center;width:42px;height:42px;
+  background:#0b0909;color:#fff;border-bottom:3px solid var(--owner-red);
+  font:900 20px "Barlow Condensed";letter-spacing:-1px;
+  text-shadow:1px 1px 0 var(--owner-red);
+}
+.site.owner-route .admin-brand-lockup small{
+  color:#625956;font:800 9px "DM Sans",sans-serif;letter-spacing:2px;
+}
+.site.owner-route .admin-heading:after{
+  content:"PRIVATE OWNER ACCESS  /  ACCRA, GHANA";
+  display:block;margin-top:11px;
+  color:#8b817b;font:800 8px "DM Sans",sans-serif;letter-spacing:1.6px;
+}
+.site.owner-route .admin-panel-head>button{
+  flex:0 0 38px;width:38px;height:38px;
+  border:1px solid #c8c0bb;background:transparent;color:#171313;
+  font-size:24px;transition:background .2s,color .2s,border-color .2s;
+}
+.site.owner-route .admin-panel-head>button:hover{
+  background:var(--owner-red);color:#fff;border-color:var(--owner-red);
+}
+.site.owner-route .admin-form{
+  grid-row:2;align-content:start;gap:19px;
+  padding-top:26px;padding-bottom:50px;
+}
+.site.owner-route .admin-form:before{
+  content:"THE BUSINESS BEHIND THE CULTURE";
+  display:block;margin-bottom:2px;
+  color:#8b817b;font:800 9px "DM Sans",sans-serif;letter-spacing:1.8px;
+}
+.site.owner-route .admin-form label,
+.site.owner-route .admin-fields label{
+  display:grid;gap:8px;color:#625956;
+  font:800 9px "DM Sans",sans-serif;letter-spacing:1.45px;
+}
+.site.owner-route .admin-form input,
+.site.owner-route .admin-fields input,
+.site.owner-route .admin-fields textarea,
+.site.owner-route .admin-fields select{
+  width:100%;min-height:51px;padding:13px 14px;
+  border:1px solid #d6d0cc;border-radius:1px;
+  background:#fff;color:#171313;
+  font:500 14px "DM Sans",sans-serif;
+  box-shadow:inset 0 1px 2px #100b0c08;
+  transition:border-color .2s,box-shadow .2s;
+}
+.site.owner-route .admin-form input:focus,
+.site.owner-route .admin-fields :is(input,textarea,select):focus{
+  outline:none;border-color:var(--owner-red);
+  box-shadow:0 0 0 3px #e11d2e20;
+}
+.site.owner-route .admin-form input::placeholder,
+.site.owner-route .admin-fields input::placeholder{color:#aaa19c}
+.site.owner-route .admin-form .button,
+.site.owner-route .admin-product-form>.button{
+  min-height:54px;padding:0 19px;
+  background:#0b0909;color:#fff;border:1px solid #0b0909;
+  border-bottom:3px solid var(--owner-red);border-radius:1px;
+  font:800 10px "DM Sans",sans-serif;letter-spacing:1.6px;
+  transition:transform .2s,background .2s;
+}
+.site.owner-route .admin-form .button{width:100%;justify-content:space-between}
+.site.owner-route .admin-form .button:after{content:"↗";font-size:17px;color:#ff5360}
+.site.owner-route .admin-form .button:hover,
+.site.owner-route .admin-product-form>.button:hover{
+  background:#241012;transform:translateY(-1px);
+}
+.site.owner-route .admin-error{
+  margin:0;padding:12px 14px;
+  background:#f3d9d8;border-left:3px solid var(--owner-red);
+  color:#8e1720;line-height:1.5;
+}
+.site.owner-route .admin-toolbar,
+.site.owner-route .admin-product-form,
+.site.owner-route .admin-product-list{
+  background:var(--owner-paper);
+  border-color:#d8d0ca;
+}
+.site.owner-route .admin-toolbar{
+  padding-top:18px;padding-bottom:18px;
+  border-bottom:1px solid #d8d0ca;
+  color:#625956;font-size:11px;
+}
+.site.owner-route .admin-toolbar button,
+.site.owner-route .admin-product-row button,
+.site.owner-route .admin-cancel{
+  border:1px solid #c8c0bb;background:transparent;color:#171313;
+  padding:9px 12px;font:800 9px "DM Sans",sans-serif;
+  letter-spacing:1px;transition:all .2s;
+}
+.site.owner-route .admin-toolbar button:hover,
+.site.owner-route .admin-product-row button:hover,
+.site.owner-route .admin-cancel:hover{
+  border-color:var(--owner-red);background:var(--owner-red);color:#fff;
+}
+.site.owner-route .admin-product-form,
+.site.owner-route .admin-product-list{
+  padding-top:23px;padding-bottom:28px;
+}
+.site.owner-route .admin-product-form h3,
+.site.owner-route .admin-product-list h3{
+  color:#171313;font:800 27px "Barlow Condensed",sans-serif;
+  letter-spacing:.01em;text-transform:uppercase;
+}
+.site.owner-route .admin-fields{gap:15px}
+.site.owner-route .admin-fields textarea{min-height:90px;resize:vertical}
+.site.owner-route .admin-fields input[type=file]{padding:10px;background:#fff}
+.site.owner-route .admin-fields small{color:#766d68;font-size:10px;line-height:1.5}
+.site.owner-route .admin-checks{gap:18px;flex-wrap:wrap}
+.site.owner-route .admin-checks label{
+  display:flex;align-items:center;gap:8px;color:#625956;
+  font:700 11px "DM Sans",sans-serif;letter-spacing:0;
+}
+.site.owner-route .admin-checks input{accent-color:var(--owner-red)}
+.site.owner-route .admin-product-row{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 0;border-bottom:1px solid #ded8d2;
+}
+.site.owner-route .admin-product-row b{color:#171313;font-size:12px}
+.site.owner-route .admin-product-row small{color:#8b817b;font-size:9px}
+.site.owner-route .admin-product-row button:last-child{color:#a20e1c}
+.site.owner-route .admin-product-row button:last-child:hover{color:#fff}
+.site.owner-route .admin-panel.admin-panel-authenticated{
+  height:min(920px,94vh);min-height:0;max-height:94vh;
+  overflow-y:auto;overflow-x:hidden;
+  grid-template-rows:repeat(4,max-content);
+  grid-auto-rows:max-content;align-content:start;
+  overscroll-behavior:contain;scrollbar-gutter:stable;
+}
+.site.owner-route .admin-panel.admin-panel-authenticated::before{
+  grid-row:1 / span 4;min-height:0;height:100%;align-self:stretch;
+}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-panel-head{grid-row:1}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-toolbar{grid-row:2}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-form{grid-row:3}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-list{grid-row:4}
+.site.owner-route .admin-panel :is(button,input,select,textarea){pointer-events:auto}
+@media(max-width:760px){
+  .site.owner-route .admin-overlay{display:block;padding:0;background:#080808;overflow:auto}
+  .site.owner-route .admin-panel,
+  .site.owner-route .admin-panel.admin-panel-authenticated{
+    display:flex;flex-direction:column;width:100%;min-height:100dvh;
+    height:auto;max-height:none;overflow:visible;
+    border:0;border-radius:0;box-shadow:none;
+  }
+  .site.owner-route .admin-panel::before,
+  .site.owner-route .admin-panel.admin-panel-authenticated::before{
+    content:"NATH VINTAGE HUB  /  PRIVATE OWNER ACCESS";
+    display:block;flex:none;grid-row:auto;min-height:220px;height:auto;
+    padding:18px 20px 20px;border:0;border-bottom:3px solid var(--owner-red);
+    background:
+      linear-gradient(180deg,#08080818 0%,#080808e8 100%),
+      url("https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/nath%20flyer.jfif") center 34%/cover;
+    color:#fff;font:800 9px "DM Sans",sans-serif;letter-spacing:1.6px;
+  }
+  .site.owner-route .admin-panel::after{
+    content:"NVH";left:22px;top:24px;font-size:76px;
+    text-shadow:3px 3px 0 var(--owner-red);
+  }
+  .site.owner-route .admin-panel-head,
+  .site.owner-route .admin-form,
+  .site.owner-route .admin-toolbar,
+  .site.owner-route .admin-product-form,
+  .site.owner-route .admin-product-list{
+    grid-column:auto;grid-row:auto;flex:none;width:100%;
+    padding-left:22px;padding-right:22px;
+  }
+  .site.owner-route .admin-panel-head{padding-top:28px;padding-bottom:20px}
+  .site.owner-route .admin-panel-head h2{font-size:42px}
+  .site.owner-route .admin-form{padding-top:22px;padding-bottom:40px}
+  .site.owner-route .admin-panel.admin-panel-authenticated::before{height:auto;min-height:220px}
+  .site.owner-route .admin-product-row{flex-wrap:wrap}
+  .site.owner-route .admin-product-row>div{flex-basis:100%}
+}
+@media(prefers-reduced-motion:reduce){
+  .site.owner-route :is(.admin-form .button,.admin-product-form>.button,.admin-panel-head>button,.admin-cancel){transition:none}
+}

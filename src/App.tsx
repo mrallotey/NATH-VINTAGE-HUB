@@ -41,7 +41,7 @@ function OpeningGrid() {
   }, []);
   if (!visible) return null;
   return <div className="opening-grid" aria-label="Nath Vintage Hub opening transition">
-    <div className="opening-grid-cells">{Array.from({ length: 20 }, (_, i) => <span key={i} style={{ '--i': i, '--tile-image': `url("${transitionImages[i % transitionImages.length]}")` } as React.CSSProperties} />)}</div>
+    <div className="opening-grid-cells">{Array.from({ length: 20 }, (_, i) => <span key={i} style={{ '--tile-image': `url("${transitionImages[i % transitionImages.length]}")`, animationDelay: `${.78 + i * .035}s` } as React.CSSProperties} />)}</div>
     <div className="opening-grid-brand"><span className="opening-monogram">NVH</span><span>NATH VINTAGE HUB</span><small>THE CULTURE. THE CLASSICS. THE FIT.</small></div>
     <div className="opening-grid-index">ACCRA · GHANA <b> / </b> EST. FOR THE CULTURE</div>
   </div>;

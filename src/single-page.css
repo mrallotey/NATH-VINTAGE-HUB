@@ -192,3 +192,31 @@ button{font:inherit}
 @media(max-width:900px){.hero-onepage{grid-template-columns:1fr 1fr;gap:25px;padding-left:5vw;padding-right:5vw}.hero-copy h1{font-size:clamp(60px,9vw,100px)}.hero-image-wrap{height:500px}.collection-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.live-product-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.shop-heading{align-items:flex-start;flex-direction:column}.shop-controls{max-width:100%;justify-content:flex-start}.story-onepage{gap:45px}.site-footer{justify-content:flex-start}}
 @media(max-width:650px){.topline{height:auto;min-height:28px;font-size:7px;letter-spacing:.12em}.topline span:last-child{display:none}.site-nav{height:70px;padding:0 18px}.brand-mark{font-size:34px}.brand-name{font-size:11px}.nav-cta{display:none}.mobile-menu-toggle{display:block;margin-left:auto}.nav-links{display:none;position:absolute;top:69px;left:0;right:0;padding:20px;background:#0c0b0b;border-bottom:1px solid var(--line);flex-direction:column;align-items:flex-start;gap:18px}.nav-links.open{display:flex}.hero-onepage{min-height:auto;padding:65px 22px 65px;display:flex;flex-direction:column;align-items:stretch;gap:48px}.hero-copy h1{font-size:clamp(66px,17vw,104px);margin:25px 0}.hero-copy>p{font-size:13px}.hero-actions{gap:18px;flex-wrap:wrap}.hero-actions .button-red{padding:14px 15px;font-size:8px}.hero-meta{margin-top:38px;gap:14px;font-size:7px}.hero-image-wrap{height:clamp(390px,110vw,540px);margin:0 4% 0 2%}.hero-image-main{inset:0 7% 0 5%}.hero-image-caption{right:-6%;font-size:7px}.scroll-cue{bottom:18px;left:22px}.collections-onepage,.shop-onepage{padding:72px 18px}.section-heading{align-items:flex-start;flex-direction:column;gap:18px;margin-bottom:30px}.section-heading h2,.shop-heading h2{font-size:clamp(51px,14vw,78px)}.section-heading>p{font-size:12px}.collection-grid{grid-template-columns:1fr 1fr;gap:25px 12px}.collection-photo{height:clamp(190px,57vw,290px)}.collection-meta{grid-template-columns:1fr;gap:6px}.collection-meta strong{font-size:14px}.collection-meta>span{font-size:7px}.shop-heading{gap:22px}.shop-controls{display:flex;flex-wrap:nowrap;overflow-x:auto;width:calc(100vw - 36px);padding-bottom:8px;justify-content:flex-start}.filter{white-space:nowrap;flex-shrink:0}.live-product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 12px}.live-product-photo{height:clamp(180px,58vw,270px)}.live-product-info strong{font-size:13px}.live-product-info>div{align-items:flex-start;flex-direction:column;gap:6px}.story-onepage{padding:72px 20px;display:flex;flex-direction:column;align-items:stretch;gap:40px}.story-image{height:105vw;max-height:500px}.story-copy h2{font-size:clamp(59px,15vw,90px)}.story-copy ul{gap:13px}.story-copy li{font-size:7px}.contact-onepage{padding:72px 20px;display:flex;flex-direction:column;gap:45px}.contact-copy h2{font-size:clamp(58px,15vw,92px)}.contact-details{gap:27px 15px}.contact-details a,.contact-details span{font-size:10px}.site-footer{padding:25px 20px;gap:16px;font-size:7px}.site-footer>span:nth-child(2){display:none}.footer-brand{width:100%}.floating-whatsapp{width:48px;height:48px;right:16px;bottom:16px}.product-modal{padding:0;align-items:end}.product-modal-panel{max-height:92vh;display:flex;flex-direction:column}.modal-gallery{min-height:0;height:48vh;flex:0 0 48vh}.modal-main-photo{min-height:0;height:100%;max-height:none}.modal-product-copy{padding:25px 22px 30px}.modal-product-copy h2{font-size:46px}.modal-product-copy>p{margin-bottom:17px}.modal-thumbs button{width:54px;height:54px}.opening-grid-cells{grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(5,1fr)}.opening-grid-brand>span:nth-child(2){font-size:11px;letter-spacing:.22em}.opening-grid-brand small{font-size:6px}.opening-grid-index{font-size:7px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.opening-grid{display:none}}
+
+
+
+/* Live hero headline typewriter.
+   This stylesheet is loaded by src/main.tsx (unlike the legacy style.css). */
+.nvh-onepage .hero-onepage .hero-copy h1 em .hero-typewriter{
+  display:inline-block;
+  width:0;
+  max-width:8ch;
+  overflow:hidden;
+  white-space:nowrap;
+  vertical-align:bottom;
+  border-right:2px solid currentColor;
+  padding-right:2px;
+  animation:nvh-live-typewriter 4.4s steps(8,end) infinite;
+}
+@keyframes nvh-live-typewriter{
+  0%,7%{width:0}
+  43%,67%{width:8ch}
+  100%{width:0}
+}
+/* Keep this requested headline effect visible even if the device has a
+   global reduced-motion rule; the animation is limited to this short phrase. */
+@media(prefers-reduced-motion:reduce){
+  .nvh-onepage .hero-onepage .hero-copy h1 em .hero-typewriter{
+    animation:nvh-live-typewriter 4.4s steps(8,end) infinite!important;
+  }
+}

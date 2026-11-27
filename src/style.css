@@ -20,7 +20,7 @@ body{margin:0;background:#fff!important;color:var(--nvh-ink);font-family:'PP Neu
 .nvh-premium .nav-links a,.nvh-premium .nav-cta,.nvh-premium .nav-owner-login{font-family:'PP Neue Montreal',sans-serif}
 .nvh-premium .nav-owner-login{border:1px solid #dce2e5;color:#051A24;background:white}
 .nvh-premium .nav-cta,.nvh-premium .button.dark{background:#051A24;color:#fff;border-radius:999px;box-shadow:0 1px 2px rgba(5,26,36,.1),0 4px 4px rgba(5,26,36,.09),0 9px 6px rgba(5,26,36,.05),0 17px 7px rgba(5,26,36,.01),inset 0 2px 8px rgba(255,255,255,.18)}
-.nvh-premium .theme-toggle{display:none}
+.nvh-premium .theme-toggle{display:inline-flex;align-items:center;justify-content:center;border:1px solid #dce2e5;border-radius:999px;background:#fff;color:#051A24;padding:11px 16px;font:700 10px/1 "PP Neue Montreal",sans-serif;letter-spacing:.06em;cursor:pointer;transition:background .2s,color .2s,border-color .2s}.nvh-premium .theme-toggle:hover{background:#edf2f5;border-color:#051A24}
 .nvh-premium .hero{min-height:auto;display:block;position:relative;padding:72px 24px 44px;background:#fff;overflow:hidden}
 .nvh-premium .hero-copy{max-width:520px;margin:0 auto;text-align:center;position:relative;z-index:2}
 .nvh-premium .hero-copy .eyebrow{justify-content:center;font:11px/1.4 monospace;letter-spacing:.06em;color:#52616a}
@@ -224,3 +224,43 @@ body{margin:0;background:#fff!important;color:var(--nvh-ink);font-family:'PP Neu
   }
   .site .category-catalogue .catalogue-product>img{height:155px}
 }
+
+
+/* Optional navy daylight palette: preserve the editorial layout while giving the page a confident deep-navy daytime finish. */
+.site.nvh-premium.daylight{background:#071f33!important;color:#f7f9fb!important;--ink:#071f33;--paper:#071f33;--cream:#f1f5f8;--olive:#061a2b;--gold:#d9b574}
+.site.nvh-premium.daylight .topline{background:#041524;color:#f7f9fb}
+.site.nvh-premium.daylight .nav{background:#071f33;color:#f7f9fb;border-bottom-color:#ffffff24}
+.site.nvh-premium.daylight .brand-mark,.site.nvh-premium.daylight .brand-name,.site.nvh-premium.daylight .nav-links,.site.nvh-premium.daylight .nav-links a{color:#f7f9fb}
+.site.nvh-premium.daylight .brand-name small{color:#b7c5d0}
+.site.nvh-premium.daylight .nav-owner-login{background:transparent;border-color:#ffffff65;color:#fff}
+.site.nvh-premium.daylight .nav-owner-login:hover{background:#fff;color:#071f33}
+.site.nvh-premium.daylight .theme-toggle{background:#f1f5f8;color:#071f33;border-color:#f1f5f8}
+.site.nvh-premium.daylight .theme-toggle:hover{background:#d9b574;border-color:#d9b574}
+.site.nvh-premium.daylight .nav-cta,.site.nvh-premium.daylight .button.dark{background:#d9b574;color:#071f33}
+.site.nvh-premium.daylight .hero{background:#071f33;color:#f7f9fb}
+.site.nvh-premium.daylight .hero h1,.site.nvh-premium.daylight .section h2,.site.nvh-premium.daylight .promise h2,.site.nvh-premium.daylight .contact h2{color:#f7f9fb}
+.site.nvh-premium.daylight .hero-copy .eyebrow,.site.nvh-premium.daylight .hero-copy>p,.site.nvh-premium.daylight .section-head>p,.site.nvh-premium.daylight .promise-copy>p{color:#c2ced7}
+.site.nvh-premium.daylight .hero h1 em,.site.nvh-premium.daylight h2 em,.site.nvh-premium.daylight h3 em{color:#d9b574}
+.site.nvh-premium.daylight .nvh-marquee,.site.nvh-premium.daylight .nvh-editorial,.site.nvh-premium.daylight .nvh-featured{background:#0b2941;color:#f7f9fb}
+.site.nvh-premium.daylight .nvh-editorial p,.site.nvh-premium.daylight .nvh-featured span{color:#c2ced7}
+.site.nvh-premium.daylight .nvh-shop-path,.site.nvh-premium.daylight .collections,.site.nvh-premium.daylight .promise{background:#071f33;color:#f7f9fb}
+.site.nvh-premium.daylight .nvh-shop-path-heading,.site.nvh-premium.daylight .nvh-featured-head{color:#f7f9fb}
+.site.nvh-premium.daylight .nvh-path-card.nvh-path-light{background:#f1f5f8;color:#071f33}
+.site.nvh-premium.daylight .nvh-path-card.nvh-path-dark{background:#0b2941;color:#fff}
+.site.nvh-premium.daylight .product-meta h3,.site.nvh-premium.daylight .product-meta{color:#f7f9fb}
+.site.nvh-premium.daylight .product-meta small{color:#d9b574}
+.site.nvh-premium.daylight .product-image{background:#12334d}
+.site.nvh-premium.daylight .product-no,.site.nvh-premium.daylight .product-arrow{background:#f1f5f8;color:#071f33}
+.site.nvh-premium.daylight .shop-word,.site.nvh-premium.daylight .text-link{color:#f7f9fb;border-color:#ffffff70}
+.site.nvh-premium.daylight .promise ul{color:#f7f9fb}
+.site.nvh-premium.daylight .promise li svg{color:#d9b574}
+.site.nvh-premium.daylight .ticker,.site.nvh-premium.daylight .contact{background:#041524;color:#f7f9fb}
+.site.nvh-premium.daylight .contact-top>p{color:#c2ced7}
+.site.nvh-premium.daylight footer{background:#071f33;color:#c2ced7}
+.site.nvh-premium.daylight .footer-brand,.site.nvh-premium.daylight .back-top{color:#f7f9fb}
+.site.nvh-premium.daylight .floating-wa{background:#d9b574;color:#071f33}
+.site.nvh-premium.daylight .category-catalogue{color:#f7f9fb}
+.site.nvh-premium.daylight .catalogue-heading{border-color:#ffffff35}
+.site.nvh-premium.daylight .catalogue-empty{background:#0b2941;color:#f7f9fb}
+.site.nvh-premium.daylight .catalogue-heading .admin-cancel{color:#f7f9fb;border-color:#ffffff65}
+@media(max-width:620px){.site.nvh-premium.daylight .nav-links{background:#071f33;color:#fff;border-color:#ffffff30}}

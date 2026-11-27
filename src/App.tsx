@@ -40,6 +40,27 @@ function OpeningGrid() {
   </div>;
 }
 
+type CollectionCard = { name: string; tag: string; image: string };
+
+function CollectionTile({ item, index, onSelect }: { item: CollectionCard; index: number; onSelect: () => void }) {
+  const tileRef = React.useRef<HTMLButtonElement>(null);
+  const [revealed, setRevealed] = React.useState(false);
+  React.useEffect(() => {
+    const node = tileRef.current;
+    if (!node) return;
+    if (!('IntersectionObserver' in window)) { setRevealed(true); return; }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setRevealed(true); observer.disconnect(); }
+    }, { threshold: 0.16, rootMargin: '0px 0px -6% 0px' });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+  return <button ref={tileRef} className={revealed ? 'collection-tile is-visible' : 'collection-tile'} style={{ '--tile-index': index } as React.CSSProperties} onClick={onSelect}>
+    <div className="collection-photo"><img src={item.image} loading="lazy" alt={item.name}/><span className="collection-number">{String(index + 1).padStart(2, '0')}</span><span className="collection-arrow"><ArrowUpRight/></span><span className="collection-image-wash"/></div>
+    <div className="collection-meta"><small>{item.tag}</small><strong>{item.name}</strong><span>EXPLORE <b>↗</b></span></div>
+  </button>;
+}
+
 export default function App() {
   const [products, setProducts] = React.useState<Product[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -117,7 +138,7 @@ export default function App() {
 
       <section className="collections-onepage" id="collections">
         <div className="section-heading"><div><span className="eyebrow"><i/> THE LINE-UP</span><h2>FIND YOUR <em>ROTATION.</em></h2></div><p>Pieces with character. Everyday essentials.<br/>A little something for every side of you.</p></div>
-        <div className="collection-grid">{collectionCards.map((item, i) => <button className="collection-tile" key={item.name} onClick={() => openCollection(item.name)}><div className="collection-photo"><img src={item.image} loading="lazy" alt={item.name}/><span className="collection-number">0{i + 1}</span><span className="collection-arrow"><ArrowUpRight/></span></div><div className="collection-meta"><small>{item.tag}</small><strong>{item.name}</strong><span>EXPLORE ↗</span></div></button>)}</div>
+        <div className="collection-grid">{collectionCards.map((item, i) => <CollectionTile item={item} index={i} key={item.name} onSelect={() => openCollection(item.name)} />)}</div>
       </section>
 
       <section className="shop-onepage" id="shop">

@@ -6,28 +6,21 @@ const WHATSAPP = '233206394909';
 const PHONE = '+233 591 986 831';
 const EMAIL = 'nyamedeenterprise@gmail.com';
 const FALLBACK_COLLECTIONS = [
-  { name: 'Vintage & Retro Jerseys', tag: 'LEGENDS NEVER FADE', image: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=900&q=85' },
-  { name: 'Current Jerseys', tag: 'MATCH DAY READY', image: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=900&q=85' },
-  { name: 'Sneakers', tag: 'STEP INTO YOUR STYLE', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85' },
-  { name: 'Birkenstock & Slides', tag: 'OFF-DUTY COMFORT', image: 'https://images.unsplash.com/photo-1603487742131-4160ec999306?auto=format&fit=crop&w=900&q=85' },
-  { name: 'Hoodies', tag: 'LAYER UP', image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=900&q=85' },
-  { name: 'Football Boots', tag: 'BUILT FOR THE GAME', image: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=900&q=85' },
-  { name: 'Leather Shoes', tag: 'POLISHED EVERYDAY STYLE', image: 'https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/Premium%20leather%20shoe.jfif' },
-  { name: 'Timberland Boots', tag: 'BUILT TO STAND OUT', image: 'https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/Timberland%20Gold.jfif' },
-  { name: 'Vintage Denim', tag: 'CLASSIC DENIM. FRESH LOOK.', image: 'https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/Vintage%20Jean%20Short.jfif' }
+  { name: 'Vintage & Retro Jerseys', tag: 'LEGENDS NEVER FADE', image: 'https://imagedelivery.net/8UvgnujKc71BuSRDtL99OQ/84b8e8fc-ac14-4ee6-3bc4-574f6979e600/2x2desktop' },
+  { name: 'Current Jerseys', tag: 'MATCH DAY READY', image: 'https://store.acmilan.com/cdn/shop/files/1500x1000_5_2_c3b2d958-efd7-47a7-843e-6d94a698fb7e.jpg?v=1716444381' },
+  { name: 'Sneakers', tag: 'STEP INTO YOUR STYLE', image: 'https://nubiantokyo.com/cdn/shop/files/25AW_BR_ASAP-Rocky_October_032_RGB_1800x.jpg?v=1759406224' },
+  { name: 'Birkenstock & Slides', tag: 'OFF-DUTY COMFORT', image: 'https://thh2.ca/cdn/shop/files/25SS_Timeless_Favourites_PI_1011074_4918-medium.jpg?v=1770142927&width=1800' },
+  { name: 'Hoodies', tag: 'LAYER UP', image: 'https://vandal-style.com/cdn/shop/files/ChatGPT_Image_Feb_7_2026_03_18_50_PM.png?v=1770474586' },
+  { name: 'Football Boots', tag: 'BUILT FOR THE GAME', image: 'https://thumblr.uniid.it/images/1768398525-index-puma-whitengold-pack.jpegquality-100.png?format=webp&q=85&width=1800' },
+  { name: 'Leather Shoes', tag: 'POLISHED EVERYDAY STYLE', image: 'https://stanleyandcooper.com/cdn/shop/files/20260126_1655_ImageGeneration_remix_01kfy4tz5bf9x9ajsx5nvhwm6y_1.png?v=1769465212&width=1800' },
+  { name: 'Timberland Boots', tag: 'BUILT TO STAND OUT', image: 'https://www.tradeinn.com/f/14009/140096520/timberland-bottes-6-premium.webp' },
+  { name: 'Vintage Denim', tag: 'CLASSIC DENIM. FRESH LOOK.', image: 'https://cameleonpunch.com/web/product/big/202303/4db8a26a1febca606d86c1e5b1a26418.jpg' }
 ];
 type Product = {
   id: string | number; name: string; category: string; description?: string; price?: number | string | null;
   image_url?: string; image_urls?: string[]; is_available?: boolean | string; is_published?: boolean | string;
 };
-const transitionImages = [
-  'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1603487742131-4160ec999306?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=500&q=70',
-  'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=500&q=70'
-];
+const transitionImages = FALLBACK_COLLECTIONS.slice(0, 6).map(item => item.image);
 const normalize = (value: unknown) => String(value ?? '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
 const money = (value: Product['price']) => value === null || value === undefined || value === '' ? '' : 'GH₵ ' + Number(value).toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const photos = (p: Product) => p.image_urls?.length ? p.image_urls : p.image_url ? [p.image_url] : [];
@@ -77,7 +70,7 @@ export default function App() {
   const collectionCards = React.useMemo(() => categories.map((name, i) => {
     const match = products.find(p => normalize(p.category) === normalize(name) && photos(p)[0]);
     const fallback = FALLBACK_COLLECTIONS.find(c => normalize(c.name) === normalize(name));
-    return { name, tag: fallback?.tag || 'THE NVH SELECTION', image: photos(match || {} as Product)[0] || fallback?.image || FALLBACK_COLLECTIONS[i % FALLBACK_COLLECTIONS.length].image };
+    return { name, tag: fallback?.tag || 'THE NVH SELECTION', image: fallback?.image || photos(match || {} as Product)[0] || FALLBACK_COLLECTIONS[i % FALLBACK_COLLECTIONS.length].image };
   }), [categories, products]);
   const visibleProducts = products.filter(p =>
     p.is_available !== false && p.is_available !== 'false' &&

@@ -307,10 +307,7 @@
     font:800 9px "DM Sans",sans-serif;
     letter-spacing:1.7px;
   }
-  .site.owner-route .admin-panel::after{
-    top:52px;left:20px;
-    font-size:45px;
-  }
+  .site.owner-route .admin-panel::after{display:none;}
   .site.owner-route .admin-panel-head,
   .site.owner-route .admin-form,
   .site.owner-route .admin-toolbar,

@@ -16,7 +16,7 @@ const products=[
 {name:'Vintage Denim',tag:'CLASSIC DENIM. FRESH LOOK.',image:'https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/Vintage%20Jean%20Short.jfif'}];
 const API=import.meta.env.VITE_API_URL || 'https://nath-vintage-api.onrender.com';
 function App(){
-const ownerRoute=window.location.pathname==='/owner'||window.location.pathname==='/owner/';
+const ownerRoute=['/owner','/owner/','/owner/index.html'].includes(window.location.pathname);
 const [theme,setTheme]=React.useState(()=>localStorage.getItem('nvh-theme')||'dark'),[menu,setMenu]=React.useState(false),[selectedCategory,setSelectedCategory]=React.useState(''),[selectedProduct,setSelectedProduct]=React.useState(null),[galleryIndex,setGalleryIndex]=React.useState(0);
 const [adminOpen,setAdminOpen]=React.useState(ownerRoute),[adminToken,setAdminToken]=React.useState(''),[adminUser,setAdminUser]=React.useState(null),[setupMode,setSetupMode]=React.useState(false),[setupToken,setSetupToken]=React.useState(''),[adminError,setAdminError]=React.useState(''),[adminProducts,setAdminProducts]=React.useState([]),[publicProducts,setPublicProducts]=React.useState([]),[publicProductsLoading,setPublicProductsLoading]=React.useState(true),[publicProductsError,setPublicProductsError]=React.useState(''),[editingId,setEditingId]=React.useState(null);
 const [authForm,setAuthForm]=React.useState({email:'nyamedeenterprise@gmail.com',password:''});

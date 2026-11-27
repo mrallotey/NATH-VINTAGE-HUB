@@ -80,6 +80,31 @@ button{font:inherit}
 .collection-meta>span b{display:inline-block;transition:transform .3s}
 .collection-tile:hover .collection-meta>span b{transform:translate(3px,-3px)}
 @media(prefers-reduced-motion:reduce){.collection-tile,.collection-photo,.collection-photo img,.collection-image-wash,.collection-meta:before{transition:none!important;animation:none!important}.collection-tile{opacity:1;transform:none}.collection-photo{clip-path:none}}
+.category-page{min-height:calc(100svh - 112px);padding:clamp(34px,5vw,70px) clamp(20px,7vw,110px) 45px;background:radial-gradient(ellipse at 75% 12%,#7d101b25,transparent 42%),#0a0909;color:#f5f1ed;animation:categoryPageIn .55s cubic-bezier(.2,.7,.2,1) both}
+.category-page-top{max-width:1280px;margin:0 auto 50px;display:flex;align-items:center;justify-content:space-between;gap:16px;color:#8f8580;font-size:8px;font-weight:800;letter-spacing:.18em}
+.category-back{display:inline-flex;align-items:center;gap:8px;border:1px solid #ffffff35;background:transparent;color:#fff;padding:12px 15px;font-size:8px;font-weight:800;letter-spacing:.14em;cursor:pointer;transition:background .25s,border-color .25s}
+.category-back:hover{background:var(--red);border-color:var(--red)}
+.category-page-heading{max-width:1280px;margin:0 auto 42px;display:flex;align-items:flex-end;justify-content:space-between;gap:25px;border-bottom:1px solid #ffffff25;padding-bottom:32px}
+.category-page-heading h1{font:900 clamp(52px,8vw,108px)/.86 'Barlow Condensed',Impact,sans-serif;letter-spacing:-.045em;margin:18px 0 14px;color:#fff}
+.category-page-heading h1 em{font:400 .78em 'PP Mondwest',Georgia,serif;color:var(--red);font-style:normal;letter-spacing:-.055em}
+.category-page-heading p{margin:0;max-width:520px;color:#aaa19c;font-size:12px;line-height:1.8}
+.category-page-count{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.category-page-count strong{font:900 56px/.8 'Barlow Condensed',sans-serif;color:var(--red)}
+.category-page-count small{font-size:7px;font-weight:800;line-height:1.5;letter-spacing:.16em;color:#aaa19c}
+.category-product-grid{max-width:1280px}
+.category-product-grid .live-product-info{color:#fff}
+.category-product-grid .live-product-info small{color:#a99e98}
+.category-product-grid .live-product-info strong{color:#fff}
+.category-product-grid .live-product-info b{color:#fff}
+.category-product-grid .live-product-info>div span{color:#ff5360}
+.category-empty{min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;color:#eee;font-size:11px;font-weight:800;letter-spacing:.14em}
+.category-empty p{margin:0}.category-empty small{font-size:10px;font-weight:400;letter-spacing:0;color:#a99e98}
+.category-page-bottom{max-width:1280px;margin:65px auto 0;padding-top:22px;border-top:1px solid #ffffff25;display:flex;justify-content:space-between;align-items:center;gap:15px;color:#8f8580;font-size:8px;font-weight:800;letter-spacing:.16em}
+.category-page-bottom button{display:inline-flex;align-items:center;gap:9px;border:0;background:none;color:#fff;font:inherit;letter-spacing:inherit;cursor:pointer;transition:color .2s}
+.category-page-bottom button:hover{color:var(--red-hot)}
+@keyframes categoryPageIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:650px){.category-page{padding:28px 18px 35px}.category-page-top{margin-bottom:38px;align-items:flex-start;flex-direction:column;gap:18px}.category-page-heading{align-items:flex-start;margin-bottom:28px}.category-page-heading h1{font-size:clamp(48px,13vw,75px)}.category-page-heading p{font-size:11px}.category-page-count{gap:7px}.category-page-count strong{font-size:42px}.category-page-count small{font-size:6px}.category-product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 12px}.category-product-grid .live-product-photo{height:clamp(180px,58vw,270px)}.category-product-grid .live-product-info>div{align-items:flex-start;flex-direction:column;gap:6px}.category-page-bottom{margin-top:45px;align-items:flex-start;flex-direction:column;gap:18px;font-size:7px}}
+@media(prefers-reduced-motion:reduce){.category-page{animation:none}}
 .shop-onepage{background:#f1ede9;color:#101010;scroll-margin-top:82px}
 .shop-heading{align-items:flex-end;margin-bottom:32px}
 .shop-heading .eyebrow{color:#4b4542}

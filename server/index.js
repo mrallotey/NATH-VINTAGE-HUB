@@ -5,7 +5,7 @@ import rateLimit from 'express-rate-limit';
 import pg from 'pg';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
 
 const { Pool } = pg;
 const app = express();
@@ -19,6 +19,11 @@ const JWT_SECRET = process.env.JWT_SECRET || '';
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'https://nath-vintage-hub.onrender.com';
 const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const DUMMY_PASSWORD_HASH = bcrypt.hashSync(randomUUID(), 12);
+const safeSecretEqual = (left, right) => timingSafeEqual(
+  createHash('sha256').update(String(left)).digest(),
+  createHash('sha256').update(String(right)).digest()
+);
 
 if (!process.env.DATABASE_URL || !OWNER_EMAIL || !SETUP_TOKEN || !JWT_SECRET) {
   console.error('Missing required DATABASE_URL, OWNER_EMAIL, OWNER_SETUP_TOKEN or JWT_SECRET environment variable.');
@@ -26,9 +31,9 @@ if (!process.env.DATABASE_URL || !OWNER_EMAIL || !SETUP_TOKEN || !JWT_SECRET) {
 }
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
-app.use(cors({ origin: FRONTEND_ORIGIN.split(',').map(v => v.trim()), credentials: true }));
-app.use(express.json({ limit: '7mb' }));
-app.use('/api/auth', rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: 'draft-7', legacyHeaders: false }));
+app.use(cors({ origin: FRONTEND_ORIGIN.split(',').map(v => v.trim()), credentials: false }));
+app.use(express.json({ limit: '7mb', strict: true }));
+app.use('/api/auth', rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: 'draft-8', legacyHeaders: false, message: { error: 'Too many authentication attempts. Please wait 15 minutes and try again.' } }));
 
 async function init() {
   await pool.query(`CREATE TABLE IF NOT EXISTS admin_users (
@@ -62,25 +67,28 @@ async function init() {
 function auth(req, res, next) {
   const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
   try {
-    if (!token) throw new Error('Missing token');
-    req.user = jwt.verify(token, JWT_SECRET);
+    if (!token || token.length > 4096) throw new Error('Missing or oversized token');
+    const user = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'], issuer: 'nath-vintage-hub' });
+    if (!user || !['owner', 'admin'].includes(user.role) || user.id == null) throw new Error('Invalid user claims');
+    req.user = user;
     next();
   } catch {
-    res.status(401).json({ error: 'Please sign in again.' });
+    res.status(401).set('Cache-Control', 'no-store').json({ error: 'Please sign in again.' });
   }
 }
 const clean = v => typeof v === 'string' ? v.trim() : '';
-function productInput(body) {
-  const name = clean(body.name), category = clean(body.category);
+function productInput(body = {}) {
+  const name = clean(body.name), category = clean(body.category), description = clean(body.description);
   if (!name || !category) return { error: 'Product name and category are required.' };
+  if (name.length > 160 || category.length > 80 || description.length > 2000) return { error: 'Product name, category or description is too long.' };
   const price = body.price === '' || body.price == null ? null : Number(body.price);
   if (price !== null && (!Number.isFinite(price) || price < 0)) return { error: 'Enter a valid price.' };
   const imageUrl = clean(body.image_url);
   const imageUrls = Array.isArray(body.image_urls) ? [...new Set(body.image_urls.map(clean).filter(Boolean))] : (imageUrl ? [imageUrl] : []);
-  if (imageUrl && !/^https:\/\//i.test(imageUrl)) return { error: 'Product image must use a secure https:// URL.' };
-  if (imageUrls.some(url => !/^https:\/\//i.test(url))) return { error: 'All product images must use secure https:// URLs.' };
+  if (imageUrl && (!/^https:\/\//i.test(imageUrl) || imageUrl.length > 2048)) return { error: 'Product image must use a valid secure https:// URL.' };
+  if (imageUrls.some(url => !/^https:\/\//i.test(url) || url.length > 2048)) return { error: 'All product images must use valid secure https:// URLs.' };
   if (imageUrls.length > 12) return { error: 'A product can have up to 12 photos.' };
-  return { values: [name, category, clean(body.description), price, imageUrls[0] || imageUrl, JSON.stringify(imageUrls), body.is_published !== false, body.is_available !== false] };
+  return { values: [name, category, description, price, imageUrls[0] || imageUrl, JSON.stringify(imageUrls), body.is_published !== false, body.is_available !== false] };
 }
 
 app.get('/api/health', async (_req, res) => {
@@ -101,16 +109,19 @@ app.get('/api/products', async (_req, res) => {
   }
 });
 app.get('/api/auth/setup-status', async (_req, res) => {
+  res.set('Cache-Control', 'no-store');
   const { rows } = await pool.query('SELECT EXISTS(SELECT 1 FROM admin_users) AS claimed');
-  res.json({ claimed: rows[0].claimed, ownerEmail: OWNER_EMAIL });
+  res.json({ claimed: rows[0].claimed });
 });
 app.post('/api/auth/setup', async (req, res) => {
   try {
     const email = clean(req.body.email).toLowerCase();
     const password = typeof req.body.password === 'string' ? req.body.password : '';
     const setupToken = typeof req.body.setupToken === 'string' ? req.body.setupToken : '';
-    if (email !== OWNER_EMAIL || setupToken.length !== SETUP_TOKEN.length || setupToken !== SETUP_TOKEN) return res.status(403).json({ error: 'Setup details are not valid.' });
-    if (password.length < 12) return res.status(400).json({ error: 'Use a password with at least 12 characters.' });
+    res.set('Cache-Control', 'no-store');
+    if (!SETUP_TOKEN) return res.status(503).json({ error: 'Owner setup is currently disabled.' });
+    if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email !== OWNER_EMAIL || !safeSecretEqual(setupToken, SETUP_TOKEN)) return res.status(403).json({ error: 'Setup details are not valid.' });
+    if (password.length < 12 || password.length > 128) return res.status(400).json({ error: 'Use a password between 12 and 128 characters.' });
     const { rows: existing } = await pool.query('SELECT id FROM admin_users LIMIT 1');
     if (existing.length) return res.status(409).json({ error: 'Owner setup has already been completed.' });
     const hash = await bcrypt.hash(password, 12);
@@ -121,11 +132,15 @@ app.post('/api/auth/setup', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   try {
     const email = clean(req.body.email).toLowerCase(), password = typeof req.body.password === 'string' ? req.body.password : '';
+    res.set('Cache-Control', 'no-store');
+    if (!email || email.length > 254 || password.length > 128) return res.status(401).json({ error: 'Email or password is incorrect.' });
     const { rows } = await pool.query('SELECT id,email,password_hash,role FROM admin_users WHERE email=$1', [email]);
-    if (!rows.length || !(await bcrypt.compare(password, rows[0].password_hash))) return res.status(401).json({ error: 'Email or password is incorrect.' });
-    await pool.query('UPDATE admin_users SET last_login_at=NOW() WHERE id=$1', [rows[0].id]);
-    const user = { id: rows[0].id, email: rows[0].email, role: rows[0].role };
-    const token = jwt.sign(user, JWT_SECRET, { expiresIn: '8h', issuer: 'nath-vintage-hub' });
+    const account = rows[0];
+    const passwordMatches = await bcrypt.compare(password || ' ', account?.password_hash || DUMMY_PASSWORD_HASH);
+    if (!account || !passwordMatches) return res.status(401).json({ error: 'Email or password is incorrect.' });
+    await pool.query('UPDATE admin_users SET last_login_at=NOW() WHERE id=$1', [account.id]);
+    const user = { id: account.id, email: account.email, role: account.role };
+    const token = jwt.sign(user, JWT_SECRET, { algorithm: 'HS256', expiresIn: '8h', issuer: 'nath-vintage-hub' });
     res.json({ token, user });
   } catch { res.status(500).json({ error: 'Sign-in is temporarily unavailable.' }); }
 });
@@ -139,9 +154,16 @@ app.post('/api/admin/upload', auth, async (req, res) => {
     if (!allowed.has(contentType)) return res.status(400).json({ error: 'Upload a JPG, PNG, WEBP or GIF image.' });
     if (typeof fileBase64 !== 'string' || !fileBase64) return res.status(400).json({ error: 'Choose an image to upload.' });
     const buffer = Buffer.from(fileBase64, 'base64');
-    if (!buffer.length || buffer.length > 5 * 1024 * 1024) return res.status(400).json({ error: 'Image must be smaller than 5 MB.' });
+    if (!buffer.length || buffer.length > 5 * 1024 * 1024 || buffer.toString('base64').replace(/=+$/, '') !== fileBase64.replace(/=+$/, '')) return res.status(400).json({ error: 'Image must be a valid file smaller than 5 MB.' });
+    const signatures = {
+      'image/jpeg': buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff,
+      'image/png': buffer.subarray(0, 8).equals(Buffer.from([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a])),
+      'image/webp': buffer.subarray(0, 4).toString('ascii') === 'RIFF' && buffer.subarray(8, 12).toString('ascii') === 'WEBP',
+      'image/gif': ['GIF87a', 'GIF89a'].includes(buffer.subarray(0, 6).toString('ascii'))
+    };
+    if (!signatures[contentType]) return res.status(400).json({ error: 'The image content does not match its file type.' });
     const ext = ({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' })[contentType];
-    const safeName = (typeof fileName === 'string' ? fileName.replace(/[^a-zA-Z0-9._-]/g, '-').slice(-80) : 'product');
+    const safeName = (typeof fileName === 'string' ? fileName.replace(/[^a-zA-Z0-9._-]/g, '-').slice(-80).replace(/\.[^.]+$/, '') : 'product');
     const objectPath = `products/${Date.now()}-${randomUUID()}-${safeName.replace(/\\.[^.]+$/, '')}.${ext}`;
     const upload = await fetch(`${SUPABASE_URL}/storage/v1/object/product-images/${objectPath}`, {
       method: 'POST',
@@ -166,10 +188,12 @@ app.post('/api/admin/upload', auth, async (req, res) => {
 });
 
 app.get('/api/admin/products', auth, async (_req, res) => {
+  res.set('Cache-Control', 'no-store');
   const { rows } = await pool.query('SELECT * FROM products ORDER BY created_at DESC');
   res.json({ products: rows });
 });
 app.post('/api/admin/products', auth, async (req, res) => {
+  res.set('Cache-Control', 'no-store');
   const parsed = productInput(req.body);
   if (parsed.error) return res.status(400).json({ error: parsed.error });
   try {
@@ -179,6 +203,8 @@ app.post('/api/admin/products', auth, async (req, res) => {
   } catch { res.status(500).json({ error: 'Could not save product.' }); }
 });
 app.put('/api/admin/products/:id', auth, async (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  if (!/^\d+$/.test(req.params.id)) return res.status(400).json({ error: 'Invalid product ID.' });
   const parsed = productInput(req.body);
   if (parsed.error) return res.status(400).json({ error: parsed.error });
   try {
@@ -189,6 +215,8 @@ app.put('/api/admin/products/:id', auth, async (req, res) => {
   } catch { res.status(500).json({ error: 'Could not update product.' }); }
 });
 app.delete('/api/admin/products/:id', auth, async (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  if (!/^\d+$/.test(req.params.id)) return res.status(400).json({ error: 'Invalid product ID.' });
   const { rowCount } = await pool.query('DELETE FROM products WHERE id=$1', [req.params.id]);
   if (!rowCount) return res.status(404).json({ error: 'Product not found.' });
   res.json({ deleted: true });

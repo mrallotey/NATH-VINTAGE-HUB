@@ -159,7 +159,7 @@ export default function App() {
         <div className="hero-backdrop-word">VINTAGE</div>
         <div className="hero-copy">
           <div className="eyebrow"><span/> THE CULTURE. THE CLASSICS. THE FIT.</div>
-          <h1>BUY QUALITY.<br/><em>WEAR THE</em><br/>DIFFERENCE<span>.</span></h1>
+          <h1>BUY QUALITY.<br/><em><span className="hero-typewriter">WEAR THE</span></em><br/>DIFFERENCE<span>.</span></h1>
           <p>From timeless football classics to everyday streetwear essentials — find your next favourite fit at Nath Vintage Hub.</p>
           <div className="hero-actions"><a className="button-red" href="#collections">EXPLORE THE COLLECTIONS <ArrowUpRight size={17}/></a><a className="hero-text-link" href={wa()} target="_blank" rel="noreferrer">TALK TO US <ArrowUpRight size={15}/></a></div>
           <div className="hero-meta"><span>01 — THE NVH EDIT</span><span>CURATED FOR YOUR CULTURE</span></div>

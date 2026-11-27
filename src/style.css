@@ -928,3 +928,151 @@ body{margin:0;background:#fff!important;color:var(--nvh-ink);font-family:'PP Neu
 @media(prefers-reduced-motion:reduce){
   .site.owner-route :is(.admin-form .button,.admin-product-form>.button,.admin-panel-head>button,.admin-cancel){transition:none}
 }
+
+
+/* FINAL OWNER PORTAL DIRECTION — one full-viewport landing surface.
+   No split-screen panels or nested dashboard frame; existing controls and
+   authentication/product/upload behavior are intentionally untouched. */
+.site.owner-route .admin-overlay{
+  position:fixed;inset:0;z-index:1000;
+  display:grid;place-items:center;
+  padding:0;overflow-x:hidden;overflow-y:auto;
+  background:#080808;
+}
+.site.owner-route .admin-panel,
+.site.owner-route .admin-panel.admin-panel-authenticated{
+  position:relative;isolation:isolate;
+  display:flex;flex-direction:column;
+  width:100%;min-height:100dvh;height:auto;max-height:none;
+  margin:0;padding:0;overflow:visible;
+  border:0;border-radius:0;box-shadow:none;
+  background:transparent;
+}
+.site.owner-route .admin-panel::before,
+.site.owner-route .admin-panel.admin-panel-authenticated::before{
+  content:"";position:absolute;inset:0;z-index:-2;
+  display:block;min-height:100%;height:auto;padding:0;border:0;
+  background:
+    linear-gradient(90deg,#080808b8 0%,#08080878 48%,#080808d9 100%),
+    linear-gradient(180deg,#08080850 0%,#080808e8 100%),
+    url("https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/nath%20flyer.jfif") center 38%/cover,
+    #080808;
+}
+.site.owner-route .admin-panel::after{
+  content:"NVH";position:absolute;z-index:2;left:clamp(22px,4vw,64px);top:clamp(18px,3vh,34px);
+  color:#fff;font:900 clamp(48px,6vw,82px)/.8 "Barlow Condensed",sans-serif;
+  letter-spacing:-.08em;text-shadow:3px 3px 0 var(--owner-red);
+  pointer-events:none;
+}
+.site.owner-route .admin-panel-head,
+.site.owner-route .admin-form,
+.site.owner-route .admin-toolbar,
+.site.owner-route .admin-product-form,
+.site.owner-route .admin-product-list{
+  position:relative;z-index:1;grid-column:auto;grid-row:auto;
+  width:min(100% - 40px,1120px);min-width:0;margin:0 auto;
+  padding-left:clamp(20px,4vw,56px);padding-right:clamp(20px,4vw,56px);
+}
+.site.owner-route .admin-panel-head{
+  align-self:stretch;display:flex;align-items:center;justify-content:space-between;
+  min-height:116px;padding-top:28px;padding-bottom:18px;
+  border:0;border-bottom:1px solid #ffffff30;background:transparent;
+}
+.site.owner-route .admin-panel-head h2{
+  margin:0;color:#fff;font:900 clamp(36px,5vw,64px)/.88 "Barlow Condensed",sans-serif;
+  letter-spacing:-.02em;text-transform:uppercase;
+}
+.site.owner-route .admin-brand-lockup{margin-left:112px}
+.site.owner-route .admin-brand-mark{background:#fff;color:#100b0c;border-bottom:3px solid var(--owner-red)}
+.site.owner-route .admin-brand-lockup small{color:#eee}
+.site.owner-route .admin-heading:after{color:#eee}
+.site.owner-route .admin-panel-head>button{
+  border:1px solid #ffffff65;background:#ffffff12;color:#fff;
+}
+.site.owner-route .admin-form{
+  display:grid;align-content:center;gap:19px;
+  width:min(100% - 40px,560px);min-height:calc(100dvh - 116px);
+  padding-top:clamp(34px,7vh,78px);padding-bottom:clamp(42px,8vh,90px);
+  margin-left:auto;margin-right:max(5vw,calc((100vw - 1120px)/2));
+  background:transparent;
+}
+.site.owner-route .admin-form:before{
+  content:"PRIVATE OWNER ACCESS  /  NATH VINTAGE HUB";
+  color:#fff;font:800 10px "DM Sans",sans-serif;letter-spacing:2px;
+}
+.site.owner-route .admin-form label,
+.site.owner-route .admin-fields label{color:#eee}
+.site.owner-route .admin-form input,
+.site.owner-route .admin-fields input,
+.site.owner-route .admin-fields textarea,
+.site.owner-route .admin-fields select{
+  min-height:54px;border-color:#ffffff40;background:#fff;color:#171313;
+}
+.site.owner-route .admin-form .button,
+.site.owner-route .admin-product-form>.button{
+  background:var(--owner-red);border-color:var(--owner-red);border-bottom:3px solid #8e101c;
+}
+.site.owner-route .admin-form .button:hover,
+.site.owner-route .admin-product-form>.button:hover{background:#b91524}
+.site.owner-route .admin-error{background:#fff0f0}
+.site.owner-route .admin-panel.admin-panel-authenticated{
+  gap:0;padding-bottom:40px;
+}
+.site.owner-route .admin-panel.admin-panel-authenticated::before{
+  position:absolute;inset:0;z-index:-2;height:auto;min-height:100%;
+}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-panel-head{
+  width:100%;min-height:116px;padding-left:max(24px,calc((100vw - 1120px)/2));
+  padding-right:max(24px,calc((100vw - 1120px)/2));
+}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-toolbar{
+  width:min(100% - 40px,1120px);padding:18px 0;margin:0 auto;
+  color:#fff;background:transparent;border-bottom:1px solid #ffffff30;
+}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-form,
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-list{
+  width:min(100% - 40px,1120px);padding:28px clamp(20px,4vw,42px);
+  margin:22px auto 0;background:#f5f1ed;color:#171313;
+  border:1px solid #ffffff35;
+}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-form h3,
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-list h3{color:#171313}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-list{margin-bottom:24px}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-row{color:#171313}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-row b{color:#171313}
+@media(max-width:760px){
+  .site.owner-route .admin-overlay{display:block;padding:0}
+  .site.owner-route .admin-panel,
+  .site.owner-route .admin-panel.admin-panel-authenticated{
+    display:flex;width:100%;min-height:100dvh;height:auto;max-height:none;
+    overflow:visible;border:0;border-radius:0;
+  }
+  .site.owner-route .admin-panel::before,
+  .site.owner-route .admin-panel.admin-panel-authenticated::before{
+    position:absolute;inset:0;min-height:100%;height:auto;padding:0;
+    background:
+      linear-gradient(180deg,#0808089c 0%,#0808089c 48%,#080808f2 100%),
+      url("https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/nath%20flyer.jfif") center/cover,
+      #080808;
+  }
+  .site.owner-route .admin-panel::after{left:20px;top:18px;font-size:54px}
+  .site.owner-route .admin-panel-head{
+    width:100%;min-height:108px;padding:24px 20px 16px 92px;
+  }
+  .site.owner-route .admin-panel-head h2{font-size:39px}
+  .site.owner-route .admin-brand-lockup{margin-left:0}
+  .site.owner-route .admin-form{
+    width:min(100% - 36px,520px);min-height:calc(100dvh - 108px);
+    margin:0 auto;padding:42px 0 54px;align-content:center;
+  }
+  .site.owner-route .admin-panel.admin-panel-authenticated .admin-panel-head{
+    padding:24px 20px 16px 92px;
+  }
+  .site.owner-route .admin-panel.admin-panel-authenticated .admin-toolbar{
+    width:calc(100% - 36px);flex-wrap:wrap;gap:12px;
+  }
+  .site.owner-route .admin-panel.admin-panel-authenticated .admin-product-form,
+  .site.owner-route .admin-panel.admin-panel-authenticated .admin-product-list{
+    width:calc(100% - 36px);padding:22px 18px;margin-top:16px;
+  }
+}

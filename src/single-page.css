@@ -134,7 +134,7 @@ button{font:inherit}
 .modal-arrows button{width:38px;height:38px;border:1px solid #c8beb8;background:transparent;cursor:pointer}
 .opening-grid{position:fixed;inset:0;z-index:1000;background:#080808;overflow:hidden;pointer-events:none;animation:grid-bg-out .2s 2.2s forwards}
 .opening-grid-cells{position:absolute;inset:0;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(4,1fr);gap:2px;background:#080808}
-.opening-grid-cells span{position:relative;overflow:hidden;background:#140b0c;animation:grid-tile-out .95s cubic-bezier(.76,0,.18,1) calc(.78s + (var(--i) * .035s)) forwards;transform-origin:center}
+.opening-grid-cells span{position:relative;overflow:hidden;background:#140b0c;animation:grid-tile-out .95s cubic-bezier(.76,0,.18,1) forwards;transform-origin:center}
 .opening-grid-cells span:before{content:"";position:absolute;inset:0;background-image:var(--tile-image);background-size:cover;background-position:center;filter:grayscale(.5) contrast(1.15);opacity:.68;transform:scale(1.12)}
 .opening-grid-cells span:after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,#e11d2e55,#080808aa)}
 .opening-grid-cells span:nth-child(3n){background:#b20e1d}
@@ -145,7 +145,7 @@ button{font:inherit}
 .opening-grid-brand small{font-size:8px;font-weight:700;letter-spacing:.22em;color:#c7bfba}
 .opening-grid-index{position:absolute;bottom:25px;left:clamp(18px,5vw,65px);font-size:8px;font-weight:800;letter-spacing:.2em;color:#c9c0bc}
 .opening-grid-index b{color:var(--red);padding:0 8px}
-@keyframes grid-tile-out{0%{transform:translate3d(0,0,0) scale(1);opacity:1}100%{transform:translate3d(calc((var(--i) % 2) * 9vw - 4.5vw),calc((var(--i) % 3 - 1) * 12vh),0) scale(.72);opacity:0}}
+@keyframes grid-tile-out{0%{transform:translate3d(0,0,0) scale(1);opacity:1}100%{transform:translate3d(0,-115%,0) scale(.72);opacity:0}}\n.opening-grid-cells span:nth-child(even){animation-name:grid-tile-out-down}\n@keyframes grid-tile-out-down{0%{transform:translate3d(0,0,0) scale(1);opacity:1}100%{transform:translate3d(0,115%,0) scale(.72);opacity:0}}
 @keyframes grid-bg-out{to{visibility:hidden;opacity:0}}
 @keyframes brand-out{to{opacity:0;transform:scale(1.1);filter:blur(8px)}}
 @keyframes heroRise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}

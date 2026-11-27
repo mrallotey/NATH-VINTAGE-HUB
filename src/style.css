@@ -663,8 +663,6 @@ body{margin:0;background:#fff!important;color:var(--nvh-ink);font-family:'PP Neu
   }
 }
 
-/* Hero caption typewriter — reveal and erase the fixed phrase with a stepped clip. */
-.hero-typewriter{display:inline-block;width:0;max-width:8ch;overflow:hidden;white-space:nowrap;vertical-align:bottom;border-right:2px solid currentColor;animation:nvh-typewriter 3.8s steps(8,end) infinite,nvh-type-caret .8s steps(1,end) infinite;}
-@keyframes nvh-typewriter{0%,12%{width:0}48%,68%{width:8ch}94%,100%{width:0}}
-@keyframes nvh-type-caret{0%,48%{border-color:currentColor}49%,100%{border-color:transparent}}
-@media(prefers-reduced-motion:reduce){.hero-typewriter{width:auto;max-width:none;border-right:0;animation:none}}
+/* Hero caption typewriter — force the phrase to type, pause, then erase. */
+.site .hero h1 em .hero-typewriter{display:inline-block!important;width:0;max-width:8ch;overflow:hidden;white-space:nowrap;vertical-align:bottom;border-right:2px solid currentColor;animation:nvh-typewriter 4s steps(8,end) infinite!important;}
+@keyframes nvh-typewriter{0%,5%{width:0}45%,62%{width:8ch}100%{width:0}}

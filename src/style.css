@@ -662,3 +662,12 @@ body{margin:0;background:#fff!important;color:var(--nvh-ink);font-family:'PP Neu
     flex:none;
   }
 }
+
+/* Hero caption typewriter — keeps the editorial line width stable. */
+.nvh-premium .hero-typewriter,.hero-typewriter{
+ display:inline-block;min-width:5.35ch;white-space:nowrap;padding-right:.08em;
+ border-right:2px solid currentColor;animation:nvh-type-caret .8s steps(1,end) infinite;
+ vertical-align:baseline;
+}
+@keyframes nvh-type-caret{0%,48%{border-color:currentColor}49%,100%{border-color:transparent}}
+@media(prefers-reduced-motion:reduce){.hero-typewriter{animation:none;border-right:0}}

@@ -1227,3 +1227,52 @@ body{margin:0;background:#fff!important;color:var(--nvh-ink);font-family:'PP Neu
   position:absolute;left:50%;top:clamp(34px,6vh,70px);transform:translateX(-50%);
   margin:0;z-index:1;pointer-events:none;
 }
+
+
+/* Owner workspace: product editor on the left, catalogue on the right. */
+.site.owner-route .admin-panel.admin-panel-authenticated{
+  display:grid;
+  grid-template-columns:minmax(320px,.88fr) minmax(0,1.12fr);
+  grid-template-areas:
+    "heading heading"
+    "toolbar toolbar"
+    "editor catalogue";
+  align-content:start;
+  align-items:start;
+  gap:18px;
+  width:min(1440px,100%);
+  max-height:calc(100dvh - 48px);
+  overflow-y:auto;
+}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-panel-head{grid-area:heading}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-toolbar{grid-area:toolbar}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-form{
+  grid-area:editor;
+  position:sticky;
+  top:0;
+  align-self:start;
+}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-list{
+  grid-area:catalogue;
+  align-self:stretch;
+  min-width:0;
+  max-height:calc(100dvh - 250px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+@media(max-width:900px){
+  .site.owner-route .admin-panel.admin-panel-authenticated{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    max-height:none;
+    overflow:visible;
+  }
+  .site.owner-route .admin-panel.admin-panel-authenticated .admin-product-form,
+  .site.owner-route .admin-panel.admin-panel-authenticated .admin-product-list{
+    position:relative;
+    width:100%;
+    max-height:none;
+    overflow:visible;
+  }
+}

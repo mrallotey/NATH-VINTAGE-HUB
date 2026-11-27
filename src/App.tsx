@@ -1,63 +1,147 @@
 import React from 'react';
-import {ArrowUpRight,Check,Truck,Camera,Music2,Menu,X,MessageCircle,Phone} from 'lucide-react';
-import './style.css';
-import { useInViewAnimation } from './hooks/useInViewAnimation';
-const WA='233206394909';
-const phone='+233 591 986 831';
-function QuoteMark(){return <span className="nvh-quote-mark" aria-hidden="true">“</span>;}
-const products=[
-{name:'Vintage & Retro Jerseys',tag:'LEGENDS NEVER FADE',image:'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=720&q=78'},
-{name:'Current Jerseys',tag:'MATCH DAY READY',image:'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=720&q=78'},
-{name:'Sneakers',tag:'STEP INTO YOUR STYLE',image:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=720&q=78'},
-{name:'Birkenstock & Slides',tag:'OFF-DUTY COMFORT',image:'https://images.unsplash.com/photo-1603487742131-4160ec999306?auto=format&fit=crop&w=720&q=78'},
-{name:'Hoodies',tag:'LAYER UP',image:'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=720&q=78'},
-{name:'Football Boots',tag:'BUILT FOR THE GAME',image:'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=720&q=78'},
-{name:'Leather Shoes',tag:'POLISHED EVERYDAY STYLE',image:'https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/Premium%20leather%20shoe.jfif'},
-{name:'Timberland Boots',tag:'BUILT TO STAND OUT',image:'https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/Timberland%20Gold.jfif'},
-{name:'Vintage Denim',tag:'CLASSIC DENIM. FRESH LOOK.',image:'https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/Vintage%20Jean%20Short.jfif'}];
-const API=import.meta.env.VITE_API_URL || 'https://nath-vintage-api.onrender.com';
-export default function App(){
-const [theme,setTheme]=React.useState(()=>{try{return localStorage.getItem('nvh-theme')||'dark'}catch{return 'dark'}}),[menu,setMenu]=React.useState(false),[selectedCategory,setSelectedCategory]=React.useState(''),[selectedProduct,setSelectedProduct]=React.useState(null),[galleryIndex,setGalleryIndex]=React.useState(0);
-const [privacyNotice,setPrivacyNotice]=React.useState(()=>{try{return localStorage.getItem('nvh-privacy-notice')!=='acknowledged'}catch{return false}});
-const dismissPrivacyNotice=()=>{try{localStorage.setItem('nvh-privacy-notice','acknowledged')}catch{}setPrivacyNotice(false)};
-const [adminOpen,setAdminOpen]=React.useState(false),[adminToken,setAdminToken]=React.useState(''),[adminUser,setAdminUser]=React.useState(null),[setupMode,setSetupMode]=React.useState(false),[setupToken,setSetupToken]=React.useState(''),[adminError,setAdminError]=React.useState(''),[adminProducts,setAdminProducts]=React.useState([]),[publicProducts,setPublicProducts]=React.useState([]),[publicProductsLoading,setPublicProductsLoading]=React.useState(true),[publicProductsError,setPublicProductsError]=React.useState(''),[editingId,setEditingId]=React.useState(null);
-const [authForm,setAuthForm]=React.useState({email:'',password:''});
-const emptyProduct={name:'',category:'Vintage & Retro Jerseys',description:'',price:'',image_url:'',image_urls:[],is_published:true,is_available:true};
-const [productForm,setProductForm]=React.useState(emptyProduct),[imageFiles,setImageFiles]=React.useState([]),[imageUploadStatus,setImageUploadStatus]=React.useState('');
-React.useEffect(()=>{try{localStorage.setItem('nvh-theme',theme)}catch{}},[theme]);
-useInViewAnimation();
+import { ArrowDown, ArrowUpRight, ChevronLeft, ChevronRight, MessageCircle, Phone, Truck, X } from 'lucide-react';
 
-const loadPublicProducts=async()=>{setPublicProductsLoading(true);setPublicProductsError('');try{const response=await fetch(API+'/api/products',{cache:'no-store'});if(!response.ok)throw new Error('The product service returned '+response.status+'.');const data=await response.json();if(!data||!Array.isArray(data.products))throw new Error('The product service returned an unexpected response.');setPublicProducts(data.products);}catch(error){setPublicProductsError(error.message||'Could not connect to the product catalogue.');}finally{setPublicProductsLoading(false);}};
-React.useEffect(()=>{loadPublicProducts();},[]);
-React.useEffect(()=>{if(!selectedCategory)return;const timer=window.setTimeout(()=>{document.querySelector('.category-catalogue')?.scrollIntoView({behavior:'smooth',block:'start'});},80);return()=>window.clearTimeout(timer);},[selectedCategory]);
-const loadAdminProducts=async(token)=>{const r=await fetch(API+'/api/admin/products',{headers:{Authorization:'Bearer '+token}});const d=await r.json();if(r.ok)setAdminProducts(d.products||[]);else setAdminError(d.error||'Could not load products.');};
-const submitAuth=async(e)=>{e.preventDefault();setAdminError('');const path=setupMode?'/api/auth/setup':'/api/auth/login';const body=setupMode?{...authForm,setupToken,password:authForm.password}:{...authForm};const r=await fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json();if(!r.ok){setAdminError(d.error||'Authentication failed.');return;}if(setupMode){setSetupMode(false);setAdminError('Owner account created. Please sign in with your new password.');setAuthForm({...authForm,password:''});return;}setAdminToken(d.token);setAdminUser(d.user);await loadAdminProducts(d.token);};
-const uploadProductImage=async()=>{if(!imageFiles.length){setAdminError('Choose one or more photos first.');return;}setAdminError('');setImageUploadStatus('Uploading photos…');try{const uploaded=[];for(const file of imageFiles){const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});const fileBase64=String(dataUrl).split(',')[1];const r=await fetch(API+'/api/admin/upload',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+adminToken},body:JSON.stringify({fileName:file.name,contentType:file.type,fileBase64})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Image upload failed.');uploaded.push(d.image_url);}setProductForm(p=>({...p,image_url:p.image_url||uploaded[0],image_urls:[...new Set([...(p.image_urls||[]),...uploaded])]}));setImageFiles([]);setImageUploadStatus(uploaded.length+' photo(s) uploaded successfully.');}catch(err){setImageUploadStatus('');setAdminError(err.message||'Image upload failed.');}};
-const saveProduct=async(e)=>{e.preventDefault();setAdminError('');const url=editingId?API+'/api/admin/products/'+editingId:API+'/api/admin/products';const r=await fetch(url,{method:editingId?'PUT':'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+adminToken},body:JSON.stringify(productForm)});const d=await r.json();if(!r.ok){setAdminError(d.error||'Could not save product.');return;}setProductForm(emptyProduct);setEditingId(null);setImageFiles([]);setImageUploadStatus('');await loadAdminProducts(adminToken);const pub=await fetch(API+'/api/products').then(x=>x.json());setPublicProducts(pub.products||[]);};
-const editProduct=(p)=>{setEditingId(p.id);setImageFiles([]);setImageUploadStatus('');setProductForm({name:p.name,category:p.category,description:p.description||'',price:p.price??'',image_url:p.image_url||'',image_urls:p.image_urls|| (p.image_url?[p.image_url]:[]),is_published:p.is_published,is_available:p.is_available});};
-const deleteProduct=async(id)=>{if(!window.confirm('Delete this product permanently?'))return;const r=await fetch(API+'/api/admin/products/'+id,{method:'DELETE',headers:{Authorization:'Bearer '+adminToken}});if(r.ok){await loadAdminProducts(adminToken);const pub=await fetch(API+'/api/products').then(x=>x.json());setPublicProducts(pub.products||[]);}};
-const signOut=()=>{setAdminToken('');setAdminUser(null);setAdminProducts([]);setProductForm(emptyProduct);setEditingId(null);};
-const wa=(msg)=>'https://wa.me/'+WA+'?text='+encodeURIComponent(msg||'Hello Nath Vintage Hub, I would like to make an enquiry.');
-const normalizeCategory=value=>String(value??'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
-const categoryProducts=()=>publicProducts.filter(p=>p.is_available!==false&&p.is_available!=='false'&&normalizeCategory(p.category)===normalizeCategory(selectedCategory));
-const productPhotos=p=>p.image_urls?.length?p.image_urls:(p.image_url?[p.image_url]:[]);
-return <div className={`site nvh-premium ${theme === "daylight" ? "daylight" : "dark-mood"} bg-white text-[#051A24] font-sans`}>
-<div className="topline"><span>QUALITY FINDS. WORLDWIDE DELIVERY.</span><span>ACCRA, GHANA <i>✳</i> SHIPPING EVERYWHERE</span></div>
-<header className="nav"><a className="brand" href="#home"><span className="brand-mark">NVH</span><span className="brand-name">NATH VINTAGE HUB<small>SURE TO DELIVER.</small></span></a><nav className={menu?'nav-links open':'nav-links'}><a href="#collections" onClick={()=>setMenu(false)}>Shop collections</a><a href="#about" onClick={()=>setMenu(false)}>Our promise</a><a href="#contact" onClick={()=>setMenu(false)}>Contact</a></nav><button className="theme-toggle" type="button" onClick={()=>setTheme(theme==='dark'?'daylight':'dark')} aria-label={theme==='dark'?'Switch to daylight theme':'Switch to dark navy theme'}>{theme==='dark'?'☀ NAVY DAYLIGHT':'☾ ORIGINAL LIGHT'}</button><a className="nav-cta" href={wa()} target="_blank" rel="noreferrer">SHOP WITH US <ArrowUpRight size={16}/></a><button className="menu-btn" onClick={()=>setMenu(!menu)} aria-label="Toggle menu">{menu?<X/>:<Menu/>}</button></header>
-<main>
-<section className="hero" id="home"><div className="hero-copy"><div className="eyebrow"><span></span> THE CULTURE. THE CLASSICS. THE FIT.</div><h1>BUY QUALITY.<br/><em>WEAR THE</em><br/>DIFFERENCE<span className="dot">.</span></h1><p>From timeless football classics to everyday streetwear essentials — find your next favourite fit at Nath Vintage Hub.</p><div className="hero-actions"><a className="button dark" href="#collections">EXPLORE COLLECTIONS <ArrowUpRight size={17}/></a><a className="text-link" href={wa()} target="_blank" rel="noreferrer">Talk to us <span>↗</span></a></div><div className="hero-foot"><span>01 — 06 COLLECTIONS</span><span>CURATED FOR YOUR CULTURE</span></div></div><div className="hero-visual"><div className="hero-frame"><img src="https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/nath%20flyer.jfif" alt="Streetwear fashion editorial" fetchPriority="high" decoding="async"/></div><div className="vertical-note">VINTAGE ENERGY / EVERYDAY STYLE</div><div className="hero-stamp"><b>NVH</b><span>EST. FOR THE CULTURE</span></div><div className="hero-index">GH<span>•</span>001</div></div><div className="hero-bgword">VINTAGE</div></section>
-<div className="nvh-marquee" aria-label="Nath Vintage Hub collection preview"><div className="nvh-marquee-track">{[...products.slice(0,8),...products.slice(0,8)].map((item,i)=><div className="nvh-marquee-card" key={item.name+'-'+i}><img loading="lazy" decoding="async" src={item.image} alt={item.name}/><span>{item.name}</span></div>)}</div></div>
+const API = import.meta.env.VITE_API_URL || 'https://nath-vintage-api.onrender.com';
+const WHATSAPP = '233206394909';
+const PHONE = '+233 591 986 831';
+const EMAIL = 'nyamedeenterprise@gmail.com';
+const FALLBACK_COLLECTIONS = [
+  { name: 'Vintage & Retro Jerseys', tag: 'LEGENDS NEVER FADE', image: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=900&q=85' },
+  { name: 'Current Jerseys', tag: 'MATCH DAY READY', image: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=900&q=85' },
+  { name: 'Sneakers', tag: 'STEP INTO YOUR STYLE', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85' },
+  { name: 'Birkenstock & Slides', tag: 'OFF-DUTY COMFORT', image: 'https://images.unsplash.com/photo-1603487742131-4160ec999306?auto=format&fit=crop&w=900&q=85' },
+  { name: 'Hoodies', tag: 'LAYER UP', image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=900&q=85' },
+  { name: 'Football Boots', tag: 'BUILT FOR THE GAME', image: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=900&q=85' },
+  { name: 'Leather Shoes', tag: 'POLISHED EVERYDAY STYLE', image: 'https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/Premium%20leather%20shoe.jfif' },
+  { name: 'Timberland Boots', tag: 'BUILT TO STAND OUT', image: 'https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/Timberland%20Gold.jfif' },
+  { name: 'Vintage Denim', tag: 'CLASSIC DENIM. FRESH LOOK.', image: 'https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/Vintage%20Jean%20Short.jfif' }
+];
+type Product = {
+  id: string | number; name: string; category: string; description?: string; price?: number | string | null;
+  image_url?: string; image_urls?: string[]; is_available?: boolean | string; is_published?: boolean | string;
+};
+const transitionImages = [
+  'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=500&q=70',
+  'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=70',
+  'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=500&q=70',
+  'https://images.unsplash.com/photo-1603487742131-4160ec999306?auto=format&fit=crop&w=500&q=70',
+  'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=500&q=70',
+  'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=500&q=70'
+];
+const normalize = (value: unknown) => String(value ?? '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+const money = (value: Product['price']) => value === null || value === undefined || value === '' ? '' : 'GH₵ ' + Number(value).toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const photos = (p: Product) => p.image_urls?.length ? p.image_urls : p.image_url ? [p.image_url] : [];
+const wa = (message = 'Hello Nath Vintage Hub, I would like to make an enquiry.') => 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(message);
 
-<div className="ticker"><div>VINTAGE JERSEYS <b>✳</b> SNEAKERS <b>✳</b> STREETWEAR <b>✳</b> FOOTBALL CULTURE <b>✳</b> WORLDWIDE DELIVERY <b>✳</b> VINTAGE JERSEYS <b>✳</b> SNEAKERS <b>✳</b> STREETWEAR <b>✳</b> FOOTBALL CULTURE <b>✳</b></div></div>
-<section className="nvh-editorial"><div className="nvh-editorial-inner"><QuoteMark/><h2>Good style never needs to <em>shout.</em></h2><p>From the terraces to the streets, Nath Vintage Hub brings together pieces with character, quality and a story worth wearing.</p><div className="nvh-wordmarks"><span>JERSEYS</span><span>FOOTWEAR</span><span>STREETWEAR</span></div><img loading="lazy" decoding="async" src="https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/nath%20flyer.jfif" alt="Nath Vintage Hub fashion edit"/></div></section>
+function OpeningGrid() {
+  const [visible, setVisible] = React.useState(true);
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => setVisible(false), 2450);
+    return () => window.clearTimeout(timer);
+  }, []);
+  if (!visible) return null;
+  return <div className="opening-grid" aria-label="Nath Vintage Hub opening transition">
+    <div className="opening-grid-cells">{Array.from({ length: 20 }, (_, i) => <span key={i} style={{ '--i': i, '--tile-image': `url("${transitionImages[i % transitionImages.length]}")` } as React.CSSProperties} />)}</div>
+    <div className="opening-grid-brand"><span className="opening-monogram">NVH</span><span>NATH VINTAGE HUB</span><small>THE CULTURE. THE CLASSICS. THE FIT.</small></div>
+    <div className="opening-grid-index">ACCRA · GHANA <b> / </b> EST. FOR THE CULTURE</div>
+  </div>;
+}
 
-<section className="nvh-shop-path"><div className="nvh-shop-path-inner"><div className="nvh-shop-path-heading"><span>THE WAY YOU SHOP</span><h2>Find your <em>next favourite.</em></h2></div><div className="nvh-path-grid"><a href="#collections" className="nvh-path-card nvh-path-dark"><span>01 / THE COLLECTION</span><h3>Ready for<br/><em>your rotation.</em></h3><p>Explore jerseys, sneakers, slides, hoodies and more.</p><b>SHOP THE LINE-UP <ArrowUpRight/></b></a><a href={wa('Hello Nath Vintage Hub, I would like to ask about a custom request.')} target="_blank" rel="noreferrer" className="nvh-path-card nvh-path-light"><span>02 / PERSONAL REQUEST</span><h3>Looking for<br/><em>something else?</em></h3><p>Tell us what you have in mind. We will help you find the right fit.</p><b>MAKE AN ENQUIRY <ArrowUpRight/></b></a></div></div></section>
+export default function App() {
+  const [products, setProducts] = React.useState<Product[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState('');
+  const [activeCategory, setActiveCategory] = React.useState('ALL');
+  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
+  const [photoIndex, setPhotoIndex] = React.useState(0);
+  const [mobileMenu, setMobileMenu] = React.useState(false);
 
-<section className="collections section" id="collections"><div className="section-head"><div><div className="eyebrow"><span></span> FIND YOUR NEXT FIT</div><h2>THE <em>LINE-UP</em></h2></div><p>From the terraces to the streets.<br/>There is something for every side of you.</p></div><div className="product-grid">{products.map((p,i)=><button type="button" className="product-card" key={p.name} onClick={()=>{setSelectedCategory(p.name);setSelectedProduct(null);setGalleryIndex(0);}}><div className="product-image"><img loading="lazy" decoding="async" src={p.image} alt={p.name}/><span className="product-no">0{i+1}</span><span className="product-arrow"><ArrowUpRight/></span></div><div className="product-meta"><div><small>{p.tag}</small><h3>{p.name}</h3></div><span className="shop-word">ENQUIRE ↗</span></div></button>)}</div>{selectedCategory&&<div className="category-catalogue"><div className="catalogue-heading"><div><div className="eyebrow"><span></span> SHOP THE CATEGORY</div><h3>{selectedCategory.toUpperCase()}</h3></div><button type="button" className="admin-cancel" onClick={()=>setSelectedCategory('')}>← ALL CATEGORIES</button></div><div className="live-product-grid">{categoryProducts().map(p=><button type="button" className="live-product catalogue-product" key={p.id} onClick={()=>{setSelectedProduct(p);setGalleryIndex(0);}}>{(productPhotos(p)[0])&&<img loading="lazy" decoding="async" src={productPhotos(p)[0]} alt={p.name}/>}<div><small>{p.category}</small><h4>{p.name}</h4>{p.description&&<p>{p.description}</p>}{p.price!==null&&<b>GH₵ {Number(p.price).toFixed(2)}</b>}<span className="catalogue-link">VIEW DETAILS ↗</span></div></button>)}{publicProductsLoading&&<p className="catalogue-empty">Loading products…</p>}{!publicProductsLoading&&publicProductsError&&<div className="catalogue-empty"><p>We couldn't load the product catalogue right now. Your products have not been removed.</p><small>{publicProductsError}</small><br/><button type="button" className="admin-cancel" onClick={loadPublicProducts}>RETRY LOADING PRODUCTS</button></div>}{!publicProductsLoading&&!publicProductsError&&categoryProducts().length===0&&<p className="catalogue-empty">There are currently no available products in this category. Browse another category or check back soon.</p>}</div></div>}<div className="custom-banner"><div><span className="eyebrow light">MAKE IT YOURS</span><h3>YOUR STYLE.<br/><em>YOUR STATEMENT.</em></h3><p>Customisation available. Tell us what you have in mind.</p></div><a href={wa('Hello! I would like to ask about customisation at Nath Vintage Hub.')} target="_blank" rel="noreferrer" className="button cream">ASK ABOUT CUSTOMISATION <ArrowUpRight size={17}/></a></div></section>
-<section className="nvh-featured"><div className="nvh-featured-head"><div><span>THE NVH EDIT</span><h2>Made for the <em>rotation.</em></h2></div><a href="#collections">EXPLORE ALL CATEGORIES <ArrowUpRight/></a></div><div className="nvh-featured-row">{products.slice(0,5).map((p,i)=><a href="#collections" className="nvh-featured-card" key={p.name}><img loading="lazy" decoding="async" src={p.image} alt={p.name}/><span>0{i+1} / FEATURED CATEGORY</span><h3>{p.name}</h3></a>)}</div></section>
+  const loadProducts = React.useCallback(async () => {
+    setLoading(true); setError('');
+    try {
+      const response = await fetch(API + '/api/products', { cache: 'no-store' });
+      if (!response.ok) throw new Error('The product service returned ' + response.status + '.');
+      const data = await response.json();
+      if (!Array.isArray(data?.products)) throw new Error('The product catalogue returned an unexpected response.');
+      setProducts(data.products.filter((p: Product) => p.is_published !== false && p.is_published !== 'false'));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not connect to the product catalogue.');
+    } finally { setLoading(false); }
+  }, []);
+  React.useEffect(() => { loadProducts(); }, [loadProducts]);
 
-<section className="promise section" id="about"><div className="promise-image"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1556906781-9a412961c28c?auto=format&fit=crop&w=900&q=78" alt="Footwear and streetwear"/></div><div className="promise-copy"><div className="eyebrow"><span></span> THE NVH STANDARD</div><h2>GOOD FINDS.<br/><em>GOOD FEELING.</em></h2><p>We bring together jerseys, footwear and sportswear for people who know what they like. Whether you are chasing a classic shirt or refreshing your everyday rotation, we are here to help you find it.</p><ul><li><Check/> Quality-focused selection</li><li><Check/> Customisation available</li><li><Check/> Worldwide delivery</li><li><Check/> Personal service, every time</li></ul><a className="text-link dark-link" href={wa()} target="_blank" rel="noreferrer">Get in touch <span>↗</span></a></div></section>
-<section className="nvh-partner"><span>GOOD FINDS. PERSONAL SERVICE.</span><h2>Make room for<br/><em>something different.</em></h2><a className="button dark" href={wa()} target="_blank" rel="noreferrer"><MessageCircle/> CHAT WITH NATH VINTAGE HUB <ArrowUpRight/></a></section>
+  const categories = React.useMemo(() => {
+    const live = [...new Set(products.filter(p => p.is_available !== false && p.is_available !== 'false').map(p => p.category).filter(Boolean))];
+    return live.length ? live : FALLBACK_COLLECTIONS.map(c => c.name);
+  }, [products]);
+  const collectionCards = React.useMemo(() => categories.map((name, i) => {
+    const match = products.find(p => normalize(p.category) === normalize(name) && photos(p)[0]);
+    const fallback = FALLBACK_COLLECTIONS.find(c => normalize(c.name) === normalize(name));
+    return { name, tag: fallback?.tag || 'THE NVH SELECTION', image: photos(match || {} as Product)[0] || fallback?.image || FALLBACK_COLLECTIONS[i % FALLBACK_COLLECTIONS.length].image };
+  }), [categories, products]);
+  const visibleProducts = products.filter(p =>
+    p.is_available !== false && p.is_available !== 'false' &&
+    (activeCategory === 'ALL' || normalize(p.category) === normalize(activeCategory))
+  );
 
-<section className="contact section" id="contact"><div className="contact-top"><div className="eyebrow light"><span></span> READY WHEN YOU ARE</div><h2>LET'S GET YOU<br/><em>THE RIGHT FIT.</em></h2><p>Found something you love? Have a question? Reach out and let's make it happen.</p><a className="button cream" href={wa()} target="_blank" rel="noreferrer"><MessageCircle size={18}/> CHAT ON WHATSAPP <ArrowUpRight size={17}/></a></div><div className="contact-details"><div className="contact-item"><small>CALL US</small><a href="tel:+233591986831"><Phone size={18}/>{phone}</a></div><div className="contact-item"><small>WHATSAPP</small><a href={wa()} target="_blank" rel="noreferrer"><MessageCircle size={18}/>+233 206 394 909</a></div><div className="contact-item"><small>EMAIL US</small><a href="mailto:nyamedeenterprise@gmail.com">nyamedeenterprise@gmail.com</a></div><div className="contact-item"><small>DELIVERY</small><span><Truck size={18}/>Worldwide delivery</span></div><div className="socials"><a href="https://www.tiktok.com/@nathvintagehub" target="_blank" rel="noreferrer" aria-label="TikTok"><Music2/></a><a href="https://www.instagram.com/" target="_blank" rel="noreferrer" aria-label="Instagram"><Camera/></a></div></div></section>
-</main>{selectedProduct&&<div className="product-detail-overlay" role="dialog" aria-modal="true"><section className="product-detail-panel"><button className="product-detail-close" onClick={()=>setSelectedProduct(null)} aria-label="Close">×</button><div className="product-detail-gallery">{productPhotos(selectedProduct).length>0?<><img loading="lazy" decoding="async" className="product-detail-main-image" src={productPhotos(selectedProduct)[galleryIndex]||productPhotos(selectedProduct)[0]} alt={selectedProduct.name}/><div className="product-thumbnails">{productPhotos(selectedProduct).map((src,i)=><button key={src} onClick={()=>setGalleryIndex(i)} className={galleryIndex===i?'active':''}><img loading="lazy" decoding="async" src={src} alt={selectedProduct.name+' photo '+(i+1)}/></button>)}</div></>:<div className="catalogue-empty">No product photos yet.</div>}</div><div className="product-detail-info"><small>{selectedProduct.category}</small><h2>{selectedProduct.name}</h2>{selectedProduct.price!==null&&<strong>GH₵ {Number(selectedProduct.price).toFixed(2)}</strong>}<p>{selectedProduct.description||'Contact us for more details about this product.'}</p><a className="button dark" href={wa('Hello Nath Vintage Hub, I am interested in '+selectedProduct.name+(selectedProduct.price!==null?' (GH₵ '+Number(selectedProduct.price).toFixed(2)+')':'')+'. Is it available?')} target="_blank" rel="noreferrer"><MessageCircle size={17}/> ENQUIRE ON WHATSAPP <ArrowUpRight size={16}/></a><span className="availability-note">{selectedProduct.is_available?'AVAILABLE NOW':'CURRENTLY UNAVAILABLE'}</span></div></section></div>}<footer><a className="footer-brand" href="#home">NVH<span> NATH VINTAGE HUB</span></a><span>BUY QUALITY. WEAR THE DIFFERENCE.</span><span>© {new Date().getFullYear()} NATH VINTAGE HUB</span><a href="/privacy-policy.html" className="policy-link">PRIVACY</a><a href="/terms-and-conditions.html" className="policy-link">TERMS</a><a href="#home" className="back-top">BACK TO TOP ↑</a></footer><a className="floating-wa" href={wa()} target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp"><MessageCircle/></a>{privacyNotice&&<aside className="privacy-notice" role="dialog" aria-label="Privacy and storage notice"><div><strong>YOUR PRIVACY MATTERS</strong><p>We use essential browser storage to remember your display preference. This site does not set advertising cookies. Read our <a href="/privacy-policy.html">Privacy Policy</a>.</p></div><button type="button" onClick={dismissPrivacyNotice}>GOT IT</button></aside>}</div>}
+  const openCollection = (name: string) => {
+    setActiveCategory(name);
+    document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  const openProduct = (product: Product) => { setSelectedProduct(product); setPhotoIndex(0); };
+  const productPhotos = selectedProduct ? photos(selectedProduct) : [];
+
+  return <div className="nvh-onepage">
+    <OpeningGrid />
+    <div className="topline"><span>QUALITY FINDS. WORLDWIDE DELIVERY.</span><span>ACCRA, GHANA <i>✳</i> SHIPPING EVERYWHERE</span></div>
+    <header className="site-nav">
+      <a className="brand" href="#home" aria-label="Nath Vintage Hub home"><span className="brand-mark">NVH</span><span className="brand-name">NATH VINTAGE HUB<small>SURE TO DELIVER.</small></span></a>
+      <button className="mobile-menu-toggle" onClick={() => setMobileMenu(v => !v)} aria-label="Toggle navigation">{mobileMenu ? <X/> : <span>☰</span>}</button>
+      <nav className={mobileMenu ? 'nav-links open' : 'nav-links'}>
+        <a href="#collections" onClick={() => setMobileMenu(false)}>Collections</a><a href="#shop" onClick={() => setMobileMenu(false)}>Shop all</a><a href="#story" onClick={() => setMobileMenu(false)}>Our standard</a><a href="#contact" onClick={() => setMobileMenu(false)}>Contact</a>
+      </nav>
+      <a className="nav-cta" href={wa()} target="_blank" rel="noreferrer">SHOP WITH US <ArrowUpRight size={16}/></a>
+    </header>
+
+    <main id="home">
+      <section className="hero-onepage">
+        <div className="hero-backdrop-word">VINTAGE</div>
+        <div className="hero-copy">
+          <div className="eyebrow"><span/> THE CULTURE. THE CLASSICS. THE FIT.</div>
+          <h1>BUY QUALITY.<br/><em>WEAR THE</em><br/>DIFFERENCE<span>.</span></h1>
+          <p>From timeless football classics to everyday streetwear essentials — find your next favourite fit at Nath Vintage Hub.</p>
+          <div className="hero-actions"><a className="button-red" href="#collections">EXPLORE THE COLLECTIONS <ArrowUpRight size={17}/></a><a className="hero-text-link" href={wa()} target="_blank" rel="noreferrer">TALK TO US <ArrowUpRight size={15}/></a></div>
+          <div className="hero-meta"><span>01 — THE NVH EDIT</span><span>CURATED FOR YOUR CULTURE</span></div>
+        </div>
+        <div className="hero-image-wrap">
+          <div className="hero-image-main"><img src="https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/nath%20flyer.jfif" alt="Nath Vintage Hub fashion collection" fetchPriority="high"/></div>
+          <div className="hero-image-label"><b>NVH</b><span>EST. FOR THE CULTURE</span></div>
+          <div className="hero-image-index">GH <b>•</b> 001</div>
+          <div className="hero-image-caption">VINTAGE ENERGY / EVERYDAY STYLE</div>
+        </div>
+        <a className="scroll-cue" href="#collections"><span>SCROLL TO EXPLORE</span><ArrowDown size={15}/></a>
+      </section>
+
+      <section className="collections-onepage" id="collections">
+        <div className="section-heading"><div><span className="eyebrow"><i/> THE LINE-UP</span><h2>FIND YOUR <em>ROTATION.</em></h2></div><p>Pieces with character. Everyday essentials.<br/>A little something for every side of you.</p></div>
+        <div className="collection-grid">{collectionCards.map((item, i) => <button className="collection-tile" key={item.name} onClick={() => openCollection(item.name)}><div className="collection-photo"><img src={item.image} loading="lazy" alt={item.name}/><span className="collection-number">0{i + 1}</span><span className="collection-arrow"><ArrowUpRight/></span></div><div className="collection-meta"><small>{item.tag}</small><strong>{item.name}</strong><span>EXPLORE ↗</span></div></button>)}</div>
+      </section>
+
+      <section className="shop-onepage" id="shop">
+        <div className="shop-heading"><div><span className="eyebrow"><i/> SHOP THE DROP</span><h2>{activeCategory === 'ALL' ? <>THE LATEST <em>FINDS.</em></> : <>{activeCategory.toUpperCase()} <em>EDIT.</em></>}</h2></div><div className="shop-controls"><button className={activeCategory === 'ALL' ? 'filter active' : 'filter'} onClick={() => setActiveCategory('ALL')}>ALL ITEMS</button>{categories.map(c => <button key={c} className={activeCategory === c ? 'filter active' : 'filter'} onClick={() => setActiveCategory(c)}>{c}</button>)}</div></div>
+        {loading && <div className="catalogue-state">LOADING THE LINE-UP<span>...</span></div>}
+        {!loading && error && <div className="catalogue-state"><p>We couldn't load the live catalogue. Your products have not been removed.</p><small>{error}</small><button className="button-red" onClick={loadProducts}>TRY AGAIN</button></div>}
+        {!loading && !error && visibleProducts.length === 0 && <div className="catalogue-state">No available products in this collection just yet. Check back soon.</div>}
+        {!loading && !error && visibleProducts.length > 0 && <div className="live-product-grid">{visibleProducts.map((p, i) => <button className="live-product-card" key={p.id} onClick={() => openProduct(p)}><div className="live-product-photo">{photos(p)[0] ? <img src={photos(p)[0]} alt={p.name} loading="lazy"/> : <div className="no-photo">NVH</div>}<span className="live-product-index">0{i + 1}</span><span className="live-product-open"><ArrowUpRight/></span></div><div className="live-product-info"><small>{p.category}</small><strong>{p.name}</strong><div><b>{money(p.price)}</b><span>VIEW DETAILS ↗</span></div></div></button>)}</div>}
+      </section>
+
+      <section className="story-onepage" id="story"><div className="story-image"><img src="https://raw.githubusercontent.com/mrallotey/NATH-VINTAGE-HUB/main/nath%20flyer.jfif" alt="Nath Vintage Hub edit" loading="lazy"/></div><div className="story-copy"><span className="eyebrow"><i/> THE NVH STANDARD</span><h2>GOOD FINDS.<br/><em>GOOD FEELING.</em></h2><p>We bring together jerseys, footwear and sportswear for people who know what they like. Whether you are chasing a classic shirt or refreshing your everyday rotation, we are here to help you find it.</p><ul><li>QUALITY-FOCUSED SELECTION</li><li>CUSTOMISATION AVAILABLE</li><li>WORLDWIDE DELIVERY</li><li>PERSONAL SERVICE, EVERY TIME</li></ul><a href={wa('Hello Nath Vintage Hub, I would like to ask about your collections.')} target="_blank" rel="noreferrer" className="story-link">GET IN TOUCH <ArrowUpRight/></a></div></section>
+
+      <section className="contact-onepage" id="contact"><div className="contact-copy"><span className="eyebrow"><i/> READY WHEN YOU ARE</span><h2>LET'S GET YOU<br/><em>THE RIGHT FIT.</em></h2><p>Found something you love? Have a question? Reach out and let's make it happen.</p><a className="button-red" href={wa()} target="_blank" rel="noreferrer"><MessageCircle size={18}/> CHAT ON WHATSAPP <ArrowUpRight size={17}/></a></div><div className="contact-details"><div><small>CALL US</small><a href="tel:+233591986831"><Phone/>{PHONE}</a></div><div><small>WHATSAPP</small><a href={wa()} target="_blank" rel="noreferrer"><MessageCircle/>+233 206 394 909</a></div><div><small>EMAIL US</small><a href={'mailto:' + EMAIL}>{EMAIL}</a></div><div><small>DELIVERY</small><span><Truck/> WORLDWIDE DELIVERY</span></div></div></section>
+    </main>
+    <footer className="site-footer"><a className="footer-brand" href="#home">NVH <span>NATH VINTAGE HUB</span></a><span>BUY QUALITY. WEAR THE DIFFERENCE.</span><span>© {new Date().getFullYear()} NATH VINTAGE HUB</span><a href="/privacy-policy.html">PRIVACY</a><a href="/terms-and-conditions.html">TERMS</a><a href="#home">BACK TO TOP ↑</a></footer>
+    <a className="floating-whatsapp" href={wa()} target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp"><MessageCircle/></a>
+
+    {selectedProduct && <div className="product-modal" role="dialog" aria-modal="true" aria-label={selectedProduct.name} onMouseDown={e => { if (e.target === e.currentTarget) setSelectedProduct(null); }}><section className="product-modal-panel"><button className="modal-close" onClick={() => setSelectedProduct(null)} aria-label="Close product details"><X/></button><div className="modal-gallery">{productPhotos[photoIndex] ? <img className="modal-main-photo" src={productPhotos[photoIndex]} alt={selectedProduct.name}/> : <div className="no-photo">NVH</div>}{productPhotos.length > 1 && <div className="modal-thumbs">{productPhotos.map((src, i) => <button className={i === photoIndex ? 'selected' : ''} key={src} onClick={() => setPhotoIndex(i)}><img src={src} alt={selectedProduct.name + ' view ' + (i + 1)}/></button>)}</div>}</div><div className="modal-product-copy"><small>{selectedProduct.category}</small><h2>{selectedProduct.name}</h2>{money(selectedProduct.price) && <strong>{money(selectedProduct.price)}</strong>}<p>{selectedProduct.description || 'Contact Nath Vintage Hub for more details about this item.'}</p><a className="button-red" href={wa('Hello Nath Vintage Hub, I am interested in ' + selectedProduct.name + (money(selectedProduct.price) ? ' (' + money(selectedProduct.price) + ')' : '') + '. Is it available?')} target="_blank" rel="noreferrer"><MessageCircle/> ENQUIRE ON WHATSAPP <ArrowUpRight/></a><span className="availability">{selectedProduct.is_available === false || selectedProduct.is_available === 'false' ? 'CURRENTLY UNAVAILABLE' : 'AVAILABLE NOW'}</span>{productPhotos.length > 1 && <div className="modal-arrows"><button onClick={() => setPhotoIndex(i => (i - 1 + productPhotos.length) % productPhotos.length)}><ChevronLeft/></button><button onClick={() => setPhotoIndex(i => (i + 1) % productPhotos.length)}><ChevronRight/></button></div>}</div></section></div>}
+  </div>;
+}

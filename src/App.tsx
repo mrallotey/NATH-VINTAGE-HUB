@@ -1,6 +1,7 @@
 import React from 'react';
 import {ArrowUpRight,Check,Truck,Camera,Music2,Menu,X,MessageCircle,Phone} from 'lucide-react';
 import './style.css';
+import { useInViewAnimation } from './hooks/useInViewAnimation';
 const WA='233206394909';
 const phone='+233 591 986 831';
 function QuoteMark(){return <span className="nvh-quote-mark" aria-hidden="true">“</span>;}
@@ -22,7 +23,7 @@ const [authForm,setAuthForm]=React.useState({email:'nyamedeenterprise@gmail.com'
 const emptyProduct={name:'',category:'Vintage & Retro Jerseys',description:'',price:'',image_url:'',image_urls:[],is_published:true,is_available:true};
 const [productForm,setProductForm]=React.useState(emptyProduct),[imageFiles,setImageFiles]=React.useState([]),[imageUploadStatus,setImageUploadStatus]=React.useState('');
 React.useEffect(()=>{localStorage.setItem('nvh-theme',theme);},[theme]);
-React.useEffect(()=>{const nodes=document.querySelectorAll('.hero-copy,.hero-visual,.section-head,.product-card,.promise-image,.promise-copy,.custom-banner,.contact-top,.contact-details,.nvh-editorial,.nvh-shop-path,.nvh-featured,.nvh-partner');const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target);}}),{threshold:.1});nodes.forEach(node=>{node.classList.add('reveal-up');observer.observe(node);});return()=>observer.disconnect();},[]);
+useInViewAnimation();
 
 const loadPublicProducts=async()=>{setPublicProductsLoading(true);setPublicProductsError('');try{const response=await fetch(API+'/api/products',{cache:'no-store'});if(!response.ok)throw new Error('The product service returned '+response.status+'.');const data=await response.json();if(!data||!Array.isArray(data.products))throw new Error('The product service returned an unexpected response.');setPublicProducts(data.products);}catch(error){setPublicProductsError(error.message||'Could not connect to the product catalogue.');}finally{setPublicProductsLoading(false);}};
 React.useEffect(()=>{loadPublicProducts();fetch(API+'/api/auth/setup-status').then(r=>r.json()).then(d=>setSetupMode(!d.claimed)).catch(()=>{});},[]);

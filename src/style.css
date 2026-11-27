@@ -1217,3 +1217,9 @@ body{margin:0;background:#fff!important;color:var(--nvh-ink);font-family:'PP Neu
 @media(prefers-reduced-motion:reduce){
  .site.owner-route .admin-form input,.site.owner-route .admin-form .button{transition:none}
 }
+
+/* Keep the NVH monogram anchored above the sign-in heading in the glass card. */
+.site.owner-route .admin-panel:not(.admin-panel-authenticated)::after{
+  position:absolute;left:50%;top:clamp(34px,6vh,70px);transform:translateX(-50%);
+  margin:0;z-index:1;pointer-events:none;
+}

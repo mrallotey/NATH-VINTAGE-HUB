@@ -1459,3 +1459,34 @@ body{margin:0;background:#fff!important;color:var(--nvh-ink);font-family:'PP Neu
     overflow:visible;
   }
 }
+
+
+/* CONTRAST FIX — authenticated owner product editor.
+   The editor uses a light surface, so its field labels must not inherit
+   the pale text colour used by the dark sign-in screen. */
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-form,
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-list{
+  color:#171313;
+}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-form h3,
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-list h3{
+  color:#171313;
+  opacity:1;
+  text-shadow:none;
+}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-fields label,
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-checks label{
+  color:#25211e;
+  opacity:1;
+  text-shadow:none;
+  font-weight:800;
+}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-fields label small{
+  color:#5b5149;
+  opacity:1;
+}
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-form input,
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-form select,
+.site.owner-route .admin-panel.admin-panel-authenticated .admin-product-form textarea{
+  color:#171313;
+}
